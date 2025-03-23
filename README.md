@@ -50,6 +50,6 @@ Q? How can I contribute?
 
 Q? Do you take donations?
 
-> A: No, we do not take donations and I don't plan to take any soon. This is a fun hobby project, but this may change.
+> A: No, I do not take donations and I don't plan to take any soon. This is a fun hobby project, but this may change.
 
 
