@@ -7,7 +7,7 @@ enum _TokenTypes {
     TokComment, // The entirety of a comment from `//` to the end of the line `\n`
 }
 
-struct Token {
+struct _Token {
     tok_type: u8,
     tok_identifier: Option<String>,
     tok_literal: Option<String>,
@@ -25,12 +25,13 @@ struct Token {
 /// ```
 /// tokens: Vec<Token> = tokenize(src_code);
 /// ```
-pub fn tokenize(src: String) -> Result<Vec<Token>,String>
+pub fn tokenize(src: String)// -> Result<Vec<Token>,String>
 {
-    let mut tokens: Vec<Token> = Vec::new();
+    // let tokens: Vec<Token> = Vec::new();
     for line in src.lines() {
-        let tok_buf: String = String::new();
+        println!("{line}");
+        // let tok_buf: String = String::new();
         
     }
-    Ok(tokens)
+    // Ok(tokens)
 }

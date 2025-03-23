@@ -15,7 +15,7 @@ use colored::Colorize;
 /// ```
 pub fn verbose(message: &str) {
     if *IS_VERBOSE.get_or_init(|| false) {
-        println!("{}\t{message}", "[VERBOSE]".green());
+        println!("{} {}", "[VERBOSE]".purple(), message.purple());
     }
 }
 
@@ -32,7 +32,7 @@ pub fn verbose(message: &str) {
 /// zlog::err("This is an error message");
 /// ```
 pub fn err(message: &str) {
-    println!("{}\t{message}", "[ERROR]".red());
+    println!("{} {}", "[ERROR]".red(), message.red());
 }
 
 /// # Warning Log
@@ -48,5 +48,5 @@ pub fn err(message: &str) {
 /// zlog::warn("This is an error message");
 /// ```
 pub fn warn(message: &str) {
-    println!("{}\t{message}", "[WARNING]".yellow());
+    println!("{} {}", "[WARNING]".yellow(), message.yellow());
 }

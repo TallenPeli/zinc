@@ -4,7 +4,7 @@ use std::sync::OnceLock;
 use std::io::prelude::*;
 use colored::Colorize;
 
-// mod tokenizer;
+mod tokenizer;
 mod zlog;
 
 const VERSION: &str = "0.0.1-pre";
@@ -22,7 +22,11 @@ fn main() -> std::io::Result<()> {
 
         for arg in &args {
             if arg == "--help" || arg == "-h" {
-                println!("Usage: zinc [options] file\nOptions:\n\t-h, --help\t\t\tDisplay this information.\n\t--help=");
+                println!("Usage: zinc [options] file\nOptions:\n
+                    \t-h,\t--help\t\t\tDisplay this information.\n
+                    \t-v,\t--version\t\tPrint the version of ZINC\n
+                    \t--vb,\t--verbose\t\tPrint verbose logs.\n
+                    \t");
                 return Ok(())
             } else if arg == "--version" || arg == "-v" {
                 println!("zinc (ZINC) {VERSION} {BUILD_ID}\nCopyright (C) 2025 TallenPeli\nThis is free software; see the source for copying conditions.  There is NO
@@ -34,37 +38,44 @@ warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.");
             } else if arg.starts_with('-') {
                 zlog::warn(&format!("Unknown argument `{}`", arg));
             } else {
-                input_file_str = arg.to_string();
+                if arg != NAME {
+                    input_file_str = arg.to_string();
+                }
             }
         }
  
-        let src_path: String;
-        let cwd = std::env::current_dir().unwrap();
+        if input_file_str != "" {
+            let src_path: String;
+            let cwd = std::env::current_dir().unwrap();
 
-        // Handle different ways to handle file input
-        if args[1].starts_with("./") {
-            src_path = cwd.display().to_string() + &input_file_str[1..];
-        } else if !args[1].starts_with('/') {
-            src_path = cwd.display().to_string() + "/" + &input_file_str;
-        } else {
-            src_path = cwd.display().to_string() + &input_file_str;
-        }
-        
-        zlog::verbose(&format!("Absolute source file path: {}", src_path.to_string().blue()));
-
-        match read_file_to_string(&src_path, &mut src) {
-            Ok(()) => {},
-            Err(e) => {
-                zlog::err(&format!("Failed to read file contents to string: {}", e));
-                return Err(e)
+            // Handle different ways to handle file input
+            if args[1].starts_with("./") {
+                src_path = cwd.display().to_string() + &input_file_str[1..];
+            } else if !args[1].starts_with('/') {
+                src_path = cwd.display().to_string() + "/" + &input_file_str;
+            } else {
+                src_path = cwd.display().to_string() + &input_file_str;
             }
+            
+            zlog::verbose(&format!("Absolute source file path: {}", src_path.to_string().blue()));
+
+            match read_file_to_string(&src_path, &mut src) {
+                Ok(()) => {},
+                Err(e) => {
+                    zlog::err(&format!("Failed to read file contents to string: {}", e));
+                    return Err(e)
+                }
+            }
+
+            tokenizer::tokenize(src);
+        } else {
+            zlog::err(&format!("{}: fatal error: No input file(s). Type --help for usage.", NAME.green()));
         }
     }
     else {
-        zlog::err(&format!("{}: fatal error: Incorrect Usage. Type --help for usage.\nTerminated.", NAME.green()));
+        zlog::err(&format!("{}: fatal error: Incorrect Usage. Type --help for usage.", NAME.green()));
     }
 
-    // tokenizer::tokenize(src);
     Ok(())
 }
 
