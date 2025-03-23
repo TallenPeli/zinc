@@ -2,8 +2,6 @@
 
 [![GitHub](https://img.shields.io/github/license/Ananto30/cap-em)](/LICENSE)
 
----
-
 ZINC is a programming language written in Rust that aims to provide memory safety and many other safety features without being in your face like Rust is.
 
 ZINC uses LLVM for code compilation so it should work on Linux, MacOS, Windos, BSD, etc.
@@ -11,25 +9,17 @@ ZINC uses LLVM for code compilation so it should work on Linux, MacOS, Windos, B
 
 ## Philosophy
 
----
-
 I created ZINC as a middle ground between C and Rust. C is a very simple language and is really easy to read and write, but it's really easy to write unsafe or bad code. Rust is more complex, but provides a ton a safety features.
 
 C comes with no tooling, and there is no centralized way to do things. Rust, on the other hand provides a really useful and powerful tools for building, docs, package management and so much more.
 
 So, with ZINC I'm attempting to be a middle ground. A simple language with a ton of safety features and strong tooling.
 
----
-
 ## Dependencies
-
----
 
 All you need to compile ZINC is `cargo` which can be installed via [rustup](https://rustup.rs/)
 
 ## Installing
-
----
 
 #### Any OS
 
@@ -43,12 +33,8 @@ Build and install
 cargo build --release && cargo install --path .
 ```
 
----
-
 ## Documentation
 [Read the docs](/docs/index.md)
-
----
 
 ## Q&A
 
