@@ -2,6 +2,9 @@
 
 [![GitHub](https://img.shields.io/github/license/Ananto30/cap-em)](/LICENSE)
 
+!["Zinc's Sally](/assets/sally.png)
+Artist: [@htsu.jj](https://www.instagram.com/htsu.jj/)
+
 ZINC is a programming language (re)written in Rust that aims to provide memory safety and many other safety features without being in your face about it like Rust is.
 
 ZINC uses LLVM for code compilation so it should work on Linux, MacOS, Windos, BSD, etc.
@@ -36,19 +39,19 @@ cargo build --release && cargo install --path .
 
 ## Q&A
 
-Q? Is there an LSP?
+Q: Is there an LSP?
 
 > A: Not yet, but one is planned.
 
-Q? Can I use ZINC in production?
+Q: Can I use ZINC in production?
 
 > A: ZINC is still in early development, so I do not recommend using it in production.
 
-Q? How can I contribute?
+Q: How can I contribute?
 
 > A: Clone the repository, make changes, and open a new PR. Any help is great!
 
-Q? Do you take donations?
+Q: Do you take donations?
 
 > A: No, I do not take donations and I don't plan to take any soon. This is a fun hobby project, but this may change.
 
