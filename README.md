@@ -2,7 +2,7 @@
 
 [![GitHub](https://img.shields.io/github/license/Ananto30/cap-em)](/LICENSE)
 
-!["Zinc's Sally](/assets/sally.png)
+!["Zinc's Sally](/assets/sally_banner.png)
 Artist: [@htsu.jj](https://www.instagram.com/htsu.jj/)
 
 ZINC is a programming language (re)written in Rust that aims to provide memory safety and many other safety features without being in your face about it like Rust is.
