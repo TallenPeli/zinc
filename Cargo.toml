@@ -1,7 +1,12 @@
 [package]
 name = "zinc"
-version = "0.1.0"
+version = "0.0.1-pre"
 edition = "2024"
 
 [dependencies]
+chrono = "0.4.40"
 colored = "3.0.0"
+lazy_static = "1.5.0"
+
+[build-dependencies]
+chrono = "0.4.40"
