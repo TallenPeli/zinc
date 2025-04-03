@@ -23,7 +23,7 @@ My first _real_ programming language that I learned (not including Python or Scr
 
 I want to copy this aspect of C#. I really want Zinc to feel organized and I want it to be fun to write.
 
-Zinc aims to fix many of the issues I have with Rust. Although you may call it a skill issue (maybe it is), I feel that my critisicm of the language is justified. Rust holds your hand too much and doesn't allow for the programmer to do what they really want to. Of course, you can tell the compiler to ignore your "unsafe" code, but this feels like a band-aid solution. Rust's bindings implementation has (some) overhead and I want the programmers to be able to directly use C libraries without
+Zinc aims to fix many of the issues I have with Rust. Although you may call it a skill issue (maybe it is), I feel that my critisicm of the language is justified. Rust holds your hand too much and doesn't allow for the programmer to do what they really want to. Of course, you can tell the compiler to ignore your "unsafe" code, but this feels like a band-aid solution. Rust's bindings implementation has (some) overhead and I want the programmers to be able to directly use C libraries without having much of a performance hit.
 
 So, with ZINC I'm attempting to be a middle ground. A simple and fun language with a ton of safety features and strong tooling.
 
