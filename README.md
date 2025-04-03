@@ -19,7 +19,7 @@ C comes with no tooling, and there is no centralized way to do things. Rust, on 
 
 I find that JavaScript has really nice syntax and it feels _fun_ to write, unlike many other languages. (rust)
 
-My first _real_ programming language that I learned (not including Python or Scratch) was C#, and I really enjoyed the syntax and the object oriented nature of it. I wrote C# for Unity and everything was super easy to implement, development time was fast, and the language felt organized.
+My first _real_ programming language that I learned (not including Python or Scratch) was C#. I really enjoyed the syntax and the object oriented nature of it. I wrote C# for Unity and everything was super easy to implement, development time was fast, and the language felt organized.
 
 I want to copy this aspect of C#. I really want Zinc to feel organized and I want it to be fun to write.
 
