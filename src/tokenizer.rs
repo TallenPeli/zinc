@@ -130,6 +130,7 @@ pub fn tokenize(src: String) -> Result<Vec<Token>, String> {
         }
     }
     let mut tokens: Vec<Token> = Vec::new();
+    let mut line: i32 = 0;
     while let Some(ch) = peek(0) {
         print!("{ch}");
         let mut tok_buf: String;
@@ -244,6 +245,23 @@ pub fn tokenize(src: String) -> Result<Vec<Token>, String> {
             });
             consume(1).expect("Faled to consume character");
         // [TODO]: More tokens
+        } else if ch == '/' {
+            if Some('/') == peek(1) {
+                consume(2)?;
+                while Some('\n') != peek(1) {
+                    consume(1)?;
+                }
+                line += 1;
+                consume(1)?;
+            }
+            if Some('*') == peek(1) {
+                consume(2)?;
+                while let Some(next_char) = peek(1) {
+                    if next_char == '*' {
+                        if peek(2) == 
+                    }
+                }
+            }
         } else {
             println!("Unknown token");
             consume(1).expect("Failed to consume char.");
