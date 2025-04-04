@@ -164,7 +164,6 @@ pub fn tokenize(src: String) -> Result<Vec<Token>, String> {
                 "u8" => TokenType::TokTypeu8,
                 _ => TokenType::TokIdentifier,
             };
-
             tokens.push(Token {
                 tok_type: token_type.clone(),
                 value: if matches!(token_type, TokenType::TokIdentifier) {
@@ -244,7 +243,6 @@ pub fn tokenize(src: String) -> Result<Vec<Token>, String> {
                 value: None,
             });
             consume(1).expect("Faled to consume character");
-        // [TODO]: More tokens
         } else if ch == '/' {
             if Some('/') == peek(1) {
                 consume(2)?;
@@ -258,8 +256,15 @@ pub fn tokenize(src: String) -> Result<Vec<Token>, String> {
                 consume(2)?;
                 while let Some(next_char) = peek(1) {
                     if next_char == '*' {
-                        if peek(2) == 
+                        if peek(2) == Some('/') {
+                            consume(2)?;
+                            break;
+                        }
                     }
+                    if next_char == '\n' {
+                        line += 1;
+                    }
+                    consume(1)?;
                 }
             }
         } else {
