@@ -26,7 +26,7 @@ dive get_datetime() -> string {
 }
 
 // Constants should be all caps.
-const DATE: String = @get_datetime();
+const DATE: string = @get_datetime();
 
 // Enums
 enum Test {
@@ -39,15 +39,15 @@ enum Test {
 
 // Structs
 struct Person {
-    Name: String = "Unknown", // Will use "Unknown" if a value is not assigned. Same with others below
+    Name: string = "Unknown", // Will use "Unknown" if a value is not assigned. Same with others below
     Age: i32 = 0,
     Height: i32 = 0,
     Gender: f32, // The compiler will force the programmer to define a value for this on creation because a default value is not provided.
-    SSN: String = "000-000-000-000-000",
+    SSN: string = "000-000-000-000-000",
 }
 
 // Main function plus arguements
-fun main(args: Vec<String> /* or args: List<String> */) -> i32 {
+fun main(args: Vec<string> /* or args: List<string> */) -> i32 {
     // use rust style print :
     print("{}", 10);
 
@@ -56,6 +56,10 @@ fun main(args: Vec<String> /* or args: List<String> */) -> i32 {
 
     // Double colon test, just for tokenization testing
     foo::bar();
+
+    // Floats
+    float32: f32 = 3.14;
+    float64: f64 = 3.1415926535897932384626433832795028841971693993751058209749445923078164062862089986280348253421170679;
 
     // Variable declarations are as follows: `<name>: <type> = <value>;` i.e.
     debug: bool = true;
@@ -70,7 +74,7 @@ fun main(args: Vec<String> /* or args: List<String> */) -> i32 {
     println("This will also work") if debug; // This will only run this line if debug is true
 
     // You can also do inline if conditionsl
-    statement: String = "Not a funny number";
+    statement: string = "Not a funny number";
     x: i32 = 0;
     x = statement == "A funny number"? 69 : 42;
 
@@ -91,7 +95,7 @@ fun main(args: Vec<String> /* or args: List<String> */) -> i32 {
 
     println("The color is : {}.", Colors::Red);
     num: i32 = 8;
-    str: String = "Hello, world!";
+    str: string = "Hello, world!";
     change_val(str, "new value");
 
     // For loops `for <index value> in <range/list> {}`
@@ -116,8 +120,8 @@ fun main(args: Vec<String> /* or args: List<String> */) -> i32 {
 // '&' is a pointer (reference) to some piece of data
 // '*' will dereference the pointer to get the actual data from the memory sector
 // Function syntax `fun <function_name>(<arg name>: <arg type>...) -> <return type> {return <value with same type of return type>}`
-fun change_val(string: &String, new_value: String) -> void {
-    *string = new_value;
+fun change_val(str: &string, new_value: string) -> void {
+    *str = new_value;
 }
 
 // Void functions still need to tell the compiler that they are void. The compiler will infer this, but it makes code more readable.

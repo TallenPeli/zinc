@@ -8,53 +8,56 @@ static mut INDEX: usize = 0;
 #[derive(Debug, Clone)]
 #[allow(dead_code)]
 pub enum TokenType {
-    TokTypeChar,      // 'char'
-    TokTypeString,    // 'String'
-    TokTypei64,       // 'i64'
-    TokTypeu64,       // 'u64'
-    TokTypei32,       // 'i32'
-    TokTypeu32,       // 'u32'
-    TokTypei16,       // 'i16'
-    TokTypeu16,       // 'u16'
-    TokTypei8,        // 'i8'
-    TokTypeu8,        // 'u8'
-    TokStringLiteral, // A string literal i.e. "Hello, world!\n"
+    TokTypeChar,      // 'char' ✅
+    TokTypeString,    // 'string' ✅
+    TokTypei64,       // 'i64' ✅
+    TokTypeu64,       // 'u64' ✅
+    TokTypei32,       // 'i32' ✅
+    TokTypeu32,       // 'u32' ✅
+    TokTypei16,       // 'i16' ✅
+    TokTypeu16,       // 'u16' ✅
+    TokTypei8,        // 'i8' ✅
+    TokTypeu8,        // 'u8' ✅
+    TokTypeBool,      // 'bool'
+    TokTypef32,       // 'f32'
+    TokTypef64,       // 'f64'
+    TokStringLiteral, // A string literal i.e. "Hello, world!\n" ✅
     TokNumLiteral,    // For number literals i.e. '1' or '1.5'
     TokCharLiteral,   // for character literals i.e. 'a'
     TokIdentifier,    // The name of the variable
-    TokAssign,        // the '=' sign
-    TokLeftParen,     // '('
-    TokRightParen,    // ')'
-    TokLeftBrace,     // '{'
-    TokRightBrace,    // '}'
+    TokAssign,        // the '=' sign ✅
+    TokLeftParen,     // '(' ✅
+    TokRightParen,    // ')' ✅
+    TokLeftBrace,     // '{' ✅
+    TokRightBrace,    // '}' ✅
     TokLeftBracket,   // '['
     TokRightBracket,  // ']'
-    TokMain,          // A program entry 'main'
-    TokSemi,          // ';'
-    TokDot,           // '.'
-    TokComma,         // ','
-    TokIf,            // an if statement 'if'
-    TokElse,          // an else statement 'else'
-    TokDo,            // A do statement 'do'
-    TokWhen,          // A when statement `x = y when z == true`
-    TokWhile,         // a while statement 'while'
-    TokFor,           // A for statement 'for'
-    TokReturn,        // A return operation 'return'
-    TokBreak,         // A break operation. Breaks out of a loop 'break;'
-    TokContinue,      // A continue operation. Continues to the next iteration 'continue;'
-    TokTry,           // For try blocks
-    TokCatch,         // To catch errors
-    TokThrow,         // Throw an exception to catch
-    TokFun,           // A 'fun' function declaration
-    TokStruct,        // A struct keyword 'struct'
-    TokEnum,          // A enum keyword 'enum'
-    TokLet,           // A let keyword 'let'
-    TokConst,         // A const keyword. Makes variable immutable 'const'
+    TokMain,          // A program entry 'main' ✅
+    TokSemi,          // ';' ✅
+    TokDot,           // '.' ✅
+    TokComma,         // ',' ✅
+    TokIf,            // an if statement 'if' ✅
+    TokElse,          // an else statement 'else' ✅
+    TokDo,            // A do statement 'do' ✅
+    TokWhen,          // A when statement `x = y when z == true` ✅
+    TokWhile,         // a while statement 'while' ✅
+    TokFor,           // A for statement 'for' ✅
+    TokIn,            // A statement used for iteration 'in' ✅
+    TokReturn,        // A return operation 'return' ✅
+    TokBreak,         // A break operation. Breaks out of a loop 'break' ✅
+    TokContinue,      // A continue operation. Continues to the next iteration 'continue' ✅
+    TokTry,           // For try blocks ✅
+    TokCatch,         // To catch errors ✅
+    TokThrow,         // Throw an exception to catch ✅
+    TokFun,           // A 'fun' function declaration ✅
+    TokStruct,        // A struct keyword 'struct' ✅
+    TokEnum,          // A enum keyword 'enum' ✅
+    TokConst,         // A const keyword. Makes variable immutable 'const' ✅
     TokType,          // For user defined types
     TokPound,         // '#' for macros and directives
-    TokDive,          // 'dive' used for imports
-    TokBellyflop,     // 'bellyflop' used for C immports
-    TokFrom,          // 'from' token to get an import
+    TokDive,          // 'dive' used for imports ✅
+    TokBellyflop,     // 'bellyflop' used for C immports ✅
+    TokFrom,          // 'from' token to get an import ✅
     TokAlias,         // 'type' for type aliases
     TokMacro,         // Used to tell the compiler to get a macro's value. `@macro`
 
@@ -79,15 +82,14 @@ pub enum TokenType {
     TokRightAngle,   // '>'  (comparison)
     TokLessEqual,    // '<=' (comparison)
     TokGreaterEqual, // '>=' (comparison)
-    TokBitAnd,       // '&'  (bitwise AND)
-    TokBitOr,        // '|'  (bitwise OR)
-    TokBitXor,       // '^'  (bitwise XOR)
-    TokBitNot,       // '~'  (bitwise NOT)
+    TokBitOr,        // '|'  (bitwise OR) ✅
+    TokBitXor,       // '^'  (bitwise XOR) ✅
+    TokTilde,        // '~'  (bitwise NOT) ✅
     TokLeftShift,    // '<<' (bitwise left shift)
     TokRightShift,   // '>>' (bitwise right shift)
     TokEllipsis,     // '...' (variadic functions or range)
     TokQuestion,     // '?'  (optional types or ternary operator)
-    TokDollar,       // '$'  (if used in macros or templates)
+    TokDollar,       // '$'  (Might use later)
     TokRange,        // '..' (used for range. i.e. 1..10 '1 to 10')
     TokDivide,       // '/'  (division)
 
@@ -156,7 +158,9 @@ pub fn tokenize(src: String) -> Result<Vec<Token>, String> {
 
             let token_type: TokenType = match tok_buf.as_str() {
                 "char" => TokenType::TokTypeChar,
-                "String" => TokenType::TokTypeString,
+                "string" => TokenType::TokTypeString,
+                "f32" => TokenType::TokTypef32,
+                "f64" => TokenType::TokTypef64,
                 "i64" => TokenType::TokTypei64,
                 "u64" => TokenType::TokTypeu64,
                 "i32" => TokenType::TokTypei32,
@@ -179,6 +183,17 @@ pub fn tokenize(src: String) -> Result<Vec<Token>, String> {
                 "switch" => TokenType::TokSwitch,
                 "case" => TokenType::TokCase,
                 "default" => TokenType::TokDefault,
+                "if" => TokenType::TokIf,
+                "else" => TokenType::TokElse,
+                "type" => TokenType::TokAlias,
+                "do" => TokenType::TokDo,
+                "while" => TokenType::TokWhile,
+                "break" => TokenType::TokBreak,
+                "continue" => TokenType::TokContinue,
+                "for" => TokenType::TokFor,
+                "in" => TokenType::TokIn,
+                "when" => TokenType::TokWhen,
+                "main" => TokenType::TokMain,
                 _ => TokenType::TokIdentifier,
             };
             tokens.push(Token {
@@ -240,6 +255,18 @@ pub fn tokenize(src: String) -> Result<Vec<Token>, String> {
         } else if ch == '!' {
             tokens.push(Token {
                 tok_type: TokenType::TokBang,
+                value: None,
+            });
+            consume(1)?;
+        } else if ch == '^' {
+            tokens.push(Token {
+                tok_type: TokenType::TokBitXor,
+                value: None,
+            });
+            consume(1)?;
+        } else if ch == '~' {
+            tokens.push(Token {
+                tok_type: TokenType::TokTilde,
                 value: None,
             });
             consume(1)?;
@@ -454,6 +481,20 @@ pub fn tokenize(src: String) -> Result<Vec<Token>, String> {
                 value: None,
             });
             consume(1)?;
+        } else if ch == '|' {
+            if Some('|') == peek(1) {
+                tokens.push(Token {
+                    tok_type: TokenType::TokOr,
+                    value: None,
+                });
+                consume(2)?;
+            } else {
+                tokens.push(Token {
+                    tok_type: TokenType::TokBitOr,
+                    value: None,
+                });
+                consume(1)?;
+            }
         } else if ch == '/' {
             if Some('/') == peek(1) {
                 consume(2)?;
