@@ -1,6 +1,6 @@
 // Single Line comments
 
-/* 
+/*
 Multi-
 Line
 comments
@@ -10,12 +10,12 @@ comments
 /// # Supports markdown
 /// It's just like rust!!
 
-// Import code from other files or clams in the project folder `dive { <functions/variables> } from "<file.zc>" or <clam>::<pearl>;` 
+// Import code from other files or clams in the project folder `dive { <functions/variables> } from "<file.zc>" or <clam>::<pearl>;`
 dive { Colors } from "./colors.zc";
 dive { print, println } from std::io;
 dive { get_date } from "./time.zc";
 
-// Import "unsafe" C libraries. `bellyflop {<functions/variables>...} from <library.h>;` 
+// Import "unsafe" C libraries. `bellyflop {<functions/variables>...} from <library.h>;`
 bellyflop { * } from <time.h>;
 
 // This is a compile time macro. It will be run at compile time and the return value can be referenced by @macro_name.
@@ -54,6 +54,9 @@ fun main(args: Vec<String> /* or args: List<String> */) -> i32 {
     // or use c-style print :
     print("%d", 10);
 
+    // Double colon test, just for tokenization testing
+    foo::bar();
+
     // Variable declarations are as follows: `<name>: <type> = <value>;` i.e.
     debug: bool = true;
 
@@ -73,7 +76,7 @@ fun main(args: Vec<String> /* or args: List<String> */) -> i32 {
 
     // We can also do that with inline if
     x = 69 if statement == "A funny number";
-    
+
     // This can also work with 'when'
     x = 42 when statement == "The meaning of life";
 
@@ -95,12 +98,12 @@ fun main(args: Vec<String> /* or args: List<String> */) -> i32 {
     for i in [1..10] {
         print(i); // This will count from 1 to 10
     }
-    
+
     // While loops `while <condition> {}`
     while condition == true {
         print("This will run until it's not true"); // This will run while the condition is true
     }
-    
+
     // Do-while loops `do {} while <condition>;`
     do {
         print("Runs once, then does the while");

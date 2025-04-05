@@ -1,6 +1,6 @@
 use std::{result::Result, sync::OnceLock, usize};
 
-use crate::zlog;
+// use crate::zlog::{self};
 
 static SOURCE: OnceLock<String> = OnceLock::new();
 static mut INDEX: usize = 0;
@@ -23,15 +23,15 @@ pub enum TokenType {
     TokCharLiteral,   // for character literals i.e. 'a'
     TokIdentifier,    // The name of the variable
     TokAssign,        // the '=' sign
-    TokLParen,        // '('
-    TokRParen,        // ')'
-    TokLBrace,        // '{'
-    TokRBrace,        // '}'
-    TokLBracket,      // '[
-    TokRBracket,      // ']'
+    TokLeftParen,     // '('
+    TokRightParen,    // ')'
+    TokLeftBrace,     // '{'
+    TokRightBrace,    // '}'
+    TokLeftBracket,   // '['
+    TokRightBracket,  // ']'
     TokMain,          // A program entry 'main'
     TokSemi,          // ';'
-    TokPeriod,        // '.'
+    TokDot,           // '.'
     TokComma,         // ','
     TokIf,            // an if statement 'if'
     TokElse,          // an else statement 'else'
@@ -59,35 +59,42 @@ pub enum TokenType {
     TokMacro,         // Used to tell the compiler to get a macro's value. `@macro`
 
     // Operators
-    TokAmpersand,   // '&'  (reference operator)
-    TokAsterisk,    // '*'  (dereference or multiplication)
-    TokArrow,       // '->' (used for return types)
-    TokColon,       // ':'  (for type annotations)
-    TokDoubleColon, // '::' (alternative for scope resolution)
-    TokModulus,     // '%'  (modulo operator)
-    TokIncrement,   // '++' (increment)
-    TokDecrement,   // '--' (decrement)
-    TokEquals,      // '==' (comparison)
-    TokNotEquals,   // '!=' (comparison)
-    TokLAngle,      // '<'  (comparison)
-    TokRAngle,      // '>'  (comparison)
-    TokLessEq,      // '<=' (comparison)
-    TokGreaterEq,   // '>=' (comparison)
-    TokBitAnd,      // '&'  (bitwise AND)
-    TokBitOr,       // '|'  (bitwise OR)
-    TokBitXor,      // '^'  (bitwise XOR)
-    TokBitNot,      // '~'  (bitwise NOT)
-    TokLShift,      // '<<' (bitwise left shift)
-    TokRShift,      // '>>' (bitwise right shift)
-    TokEllipsis,    // '...' (variadic functions or range)
-    TokQuestion,    // '?'  (optional types or ternary operator)
-    TokDollar,      // '$'  (if used in macros or templates)
-    TokRange,       // '..' (used for range. i.e. 1..10 '1 to 10')
+    TokAmpersand,    // '&'  (reference operator)
+    TokAsterisk,     // '*'  (dereference or multiplication)
+    TokArrow,        // '->' (used for return types)
+    TokColon,        // ':'  (for type annotations)
+    TokDoubleColon,  // '::' (alternative for scope resolution)
+    TokModulus,      // '%'  (modulo operator)
+    TokPlus,         // '+'  (addition or unary plus)
+    TokMinus,        // '-'  (subtraction or unary minus)
+    TokIncrement,    // '++' (increment)
+    TokDecrement,    // '--' (decrement)
+    TokEquals,       // '==' (comparison)
+    TokTimesEqual,   // '*=' (multiplication assignment)
+    TokDivideEqual,  // '/=' (division assignment)
+    TokPlusEqual,    // '+=' (addition assignment)
+    TokMinusEqual,   // '-=' (subtraction assignment)
+    TokNotEquals,    // '!=' (comparison)
+    TokLeftAngle,    // '<'  (comparison)
+    TokRightAngle,   // '>'  (comparison)
+    TokLessEqual,    // '<=' (comparison)
+    TokGreaterEqual, // '>=' (comparison)
+    TokBitAnd,       // '&'  (bitwise AND)
+    TokBitOr,        // '|'  (bitwise OR)
+    TokBitXor,       // '^'  (bitwise XOR)
+    TokBitNot,       // '~'  (bitwise NOT)
+    TokLeftShift,    // '<<' (bitwise left shift)
+    TokRightShift,   // '>>' (bitwise right shift)
+    TokEllipsis,     // '...' (variadic functions or range)
+    TokQuestion,     // '?'  (optional types or ternary operator)
+    TokDollar,       // '$'  (if used in macros or templates)
+    TokRange,        // '..' (used for range. i.e. 1..10 '1 to 10')
+    TokDivide,       // '/'  (division)
 
     // Logical Operators
-    TokAnd, // '&&'  (logical AND)
-    TokOr,  // '||'  (logical OR)
-    TokNot, // '!'   (logical NOT)
+    TokAnd,  // '&&'  (logical AND)
+    TokOr,   // '||'  (logical OR)
+    TokBang, // '!'   (logical NOT)
 
     // Control flow
     TokSwitch,  // C-Style switch statements
@@ -95,7 +102,8 @@ pub enum TokenType {
     TokDefault, // the default case for a switch statement
 
     // Misc.
-    TokEOF, // End of file token to stop the parser
+    TokEOF,     // End of file token to stop the parser
+    TokNewline, // Newline token to track line numbers
 }
 
 #[derive(Debug)]
@@ -122,30 +130,25 @@ pub fn tokenize(src: String) -> Result<Vec<Token>, String> {
     match SOURCE.set(src) {
         Ok(()) => {}
         Err(e) => {
-            zlog::err(&format!(
-                "Failed to set the source code buffer in Tokenizer due to error: {}",
-                e
-            ));
             return Err(e.to_string());
         }
     }
     let mut tokens: Vec<Token> = Vec::new();
     let mut line: i32 = 0;
     while let Some(ch) = peek(0) {
-        print!("{ch}");
         let mut tok_buf: String;
 
         if ch.is_whitespace() {
-            consume(1).expect("Failed to consume character");
+            consume(1)?;
             continue;
         } else if ch.is_alphabetic() {
             tok_buf = String::new();
             tok_buf.push(ch);
-            consume(1).expect("Failed to consume character");
+            consume(1)?;
             while let Some(next_char) = peek(0) {
                 if next_char.is_alphanumeric() || "_".contains(next_char) {
                     tok_buf.push(next_char);
-                    consume(1).expect("Failed to consume the next char.");
+                    consume(1)?;
                 } else {
                     break;
                 }
@@ -162,6 +165,20 @@ pub fn tokenize(src: String) -> Result<Vec<Token>, String> {
                 "u16" => TokenType::TokTypeu16,
                 "i8" => TokenType::TokTypei8,
                 "u8" => TokenType::TokTypeu8,
+                "struct" => TokenType::TokStruct,
+                "fun" => TokenType::TokFun,
+                "enum" => TokenType::TokEnum,
+                "const" => TokenType::TokConst,
+                "try" => TokenType::TokTry,
+                "catch" => TokenType::TokCatch,
+                "throw" => TokenType::TokThrow,
+                "return" => TokenType::TokReturn,
+                "bellyflop" => TokenType::TokBellyflop,
+                "dive" => TokenType::TokDive,
+                "from" => TokenType::TokFrom,
+                "switch" => TokenType::TokSwitch,
+                "case" => TokenType::TokCase,
+                "default" => TokenType::TokDefault,
                 _ => TokenType::TokIdentifier,
             };
             tokens.push(Token {
@@ -179,7 +196,7 @@ pub fn tokenize(src: String) -> Result<Vec<Token>, String> {
             while let Some(next_char) = peek(0) {
                 if next_char.is_numeric() {
                     tok_buf.push(next_char);
-                    consume(1).expect("Failed to consume the next char");
+                    consume(1)?;
                 } else {
                     break;
                 }
@@ -188,18 +205,185 @@ pub fn tokenize(src: String) -> Result<Vec<Token>, String> {
                 tok_type: TokenType::TokNumLiteral,
                 value: Some(tok_buf),
             });
+        } else if ch == '(' {
+            tokens.push(Token {
+                tok_type: TokenType::TokLeftParen,
+                value: None,
+            });
+            consume(1)?;
+        } else if ch == ')' {
+            tokens.push(Token {
+                tok_type: TokenType::TokRightParen,
+                value: None,
+            });
+            consume(1)?;
+        } else if ch == ',' {
+            tokens.push(Token {
+                tok_type: TokenType::TokComma,
+                value: None,
+            });
+            consume(1)?;
+        } else if ch == ':' {
+            if Some(':') == peek(1) {
+                tokens.push(Token {
+                    tok_type: TokenType::TokDoubleColon,
+                    value: None,
+                });
+                consume(2)?;
+            } else {
+                tokens.push(Token {
+                    tok_type: TokenType::TokColon,
+                    value: None,
+                });
+                consume(1)?;
+            }
+        } else if ch == '!' {
+            tokens.push(Token {
+                tok_type: TokenType::TokBang,
+                value: None,
+            });
+            consume(1)?;
+        } else if ch == '-' {
+            if Some('>') == peek(1) {
+                tokens.push(Token {
+                    tok_type: TokenType::TokArrow,
+                    value: None,
+                });
+                consume(2)?;
+            } else if Some('-') == peek(1) {
+                tokens.push(Token {
+                    tok_type: TokenType::TokDecrement,
+                    value: None,
+                });
+                consume(2)?;
+            } else if Some('=') == peek(1) {
+                tokens.push(Token {
+                    tok_type: TokenType::TokMinusEqual,
+                    value: None,
+                });
+                consume(2)?;
+            } else {
+                tokens.push(Token {
+                    tok_type: TokenType::TokMinus,
+                    value: None,
+                });
+                consume(1)?;
+            }
+        } else if ch == '+' {
+            if Some('+') == peek(1) {
+                tokens.push(Token {
+                    tok_type: TokenType::TokIncrement,
+                    value: None,
+                });
+                consume(2)?;
+            } else if Some('=') == peek(1) {
+                tokens.push(Token {
+                    tok_type: TokenType::TokPlusEqual,
+                    value: None,
+                });
+                consume(2)?;
+            } else {
+                tokens.push(Token {
+                    tok_type: TokenType::TokPlus,
+                    value: None,
+                });
+                consume(1)?;
+            }
+        } else if ch == '*' {
+            if Some('=') == peek(1) {
+                tokens.push(Token {
+                    tok_type: TokenType::TokTimesEqual,
+                    value: None,
+                });
+                consume(2)?;
+            } else {
+                tokens.push(Token {
+                    tok_type: TokenType::TokAsterisk,
+                    value: None,
+                });
+                consume(1)?;
+            }
+        } else if ch == '<' {
+            // [TODO]: Implement less than or equal to token
+            if Some('=') == peek(1) {
+                tokens.push(Token {
+                    tok_type: TokenType::TokLessEqual,
+                    value: None,
+                });
+                consume(2)?;
+            } else if Some('<') == peek(1) {
+                tokens.push(Token {
+                    tok_type: TokenType::TokLeftShift,
+                    value: None,
+                });
+                consume(2)?;
+            } else {
+                tokens.push(Token {
+                    tok_type: TokenType::TokLeftAngle,
+                    value: None,
+                });
+                consume(1)?;
+            }
+        } else if ch == '>' {
+            if Some('=') == peek(1) {
+                tokens.push(Token {
+                    tok_type: TokenType::TokGreaterEqual,
+                    value: None,
+                });
+                consume(2)?;
+            } else if Some('>') == peek(1) {
+                tokens.push(Token {
+                    tok_type: TokenType::TokRightShift,
+                    value: None,
+                });
+                consume(2)?;
+            } else {
+                tokens.push(Token {
+                    tok_type: TokenType::TokRightAngle,
+                    value: None,
+                });
+                consume(1)?;
+            }
+        } else if ch == '?' {
+            tokens.push(Token {
+                tok_type: TokenType::TokQuestion,
+                value: None,
+            });
+            consume(1)?;
+        } else if ch == '.' {
+            if Some('.') == peek(1) {
+                consume(2)?;
+                if Some('.') == peek(0) {
+                    tokens.push(Token {
+                        tok_type: TokenType::TokEllipsis,
+                        value: None,
+                    });
+                    consume(1)?;
+                } else {
+                    tokens.push(Token {
+                        tok_type: TokenType::TokRange,
+                        value: None,
+                    });
+                }
+            } else {
+                tokens.push(Token {
+                    tok_type: TokenType::TokDot,
+                    value: None,
+                });
+                consume(1)?;
+            }
         } else if ch == '"' {
             tok_buf = String::new();
             tok_buf.push(ch);
-            consume(1).expect("Failed to consume character");
+            consume(1)?;
             while let Some(next_char) = peek(0) {
                 if next_char == '"' {
                     tok_buf.push(next_char);
-                    consume(1).expect("Failed to consume the next char");
+                    consume(1)?;
                     break;
                 } else {
                     tok_buf.push(next_char);
-                    consume(1).expect("Failed to consume the next char");
+                    consume(1)?;
                 }
             }
             tokens.push(Token {
@@ -208,7 +392,7 @@ pub fn tokenize(src: String) -> Result<Vec<Token>, String> {
             });
         } else if ch == '@' {
             tok_buf = String::from("@");
-            consume(1).expect("Failed to consume the next char");
+            consume(1)?;
 
             while let Some(next_char) = peek(0) {
                 if next_char == ' ' {
@@ -220,9 +404,13 @@ pub fn tokenize(src: String) -> Result<Vec<Token>, String> {
             }
 
             if tok_buf.len() == 1 {
-                println!("Must have an identifier after an '@' Exiting now...");
-                return Err("Invalid '@' usage".into());
+                return Err(format!("Invalid '@' usage on line {}", line).into());
             }
+
+            tokens.push(Token {
+                tok_type: TokenType::TokMacro,
+                value: Some(tok_buf),
+            });
         } else if ch == '=' {
             if peek(1) == Some('=') {
                 tokens.push(Token {
@@ -230,53 +418,108 @@ pub fn tokenize(src: String) -> Result<Vec<Token>, String> {
                     value: None,
                 });
                 consume(2)?;
-                break;
             }
             tokens.push(Token {
                 tok_type: TokenType::TokAssign,
                 value: None,
             });
-            consume(1).expect("Failed to consume character");
+            consume(1)?;
         } else if ch == ';' {
             tokens.push(Token {
                 tok_type: TokenType::TokSemi,
                 value: None,
             });
-            consume(1).expect("Faled to consume character");
+            consume(1)?;
+        } else if ch == '{' {
+            tokens.push(Token {
+                tok_type: TokenType::TokLeftBrace,
+                value: None,
+            });
+            consume(1)?;
+        } else if ch == '}' {
+            tokens.push(Token {
+                tok_type: TokenType::TokRightBrace,
+                value: None,
+            });
+            consume(1)?;
+        } else if ch == '[' {
+            tokens.push(Token {
+                tok_type: TokenType::TokLeftBracket,
+                value: None,
+            });
+            consume(1)?;
+        } else if ch == ']' {
+            tokens.push(Token {
+                tok_type: TokenType::TokRightBracket,
+                value: None,
+            });
+            consume(1)?;
         } else if ch == '/' {
             if Some('/') == peek(1) {
                 consume(2)?;
-                while Some('\n') != peek(1) {
-                    consume(1)?;
+                while let Some(next_char) = peek(0) {
+                    if next_char == '\n' {
+                        consume(1)?;
+                        line += 1;
+                        break;
+                    } else {
+                        consume(1)?;
+                    }
                 }
-                line += 1;
+            } else if Some('*') == peek(1) {
+                consume(2)?;
+                while let Some(next_char) = peek(0) {
+                    if next_char == '*' && peek(1) == Some('/') {
+                        consume(2)?;
+                        break;
+                    } else {
+                        if next_char == '\n' {
+                            line += 1;
+                        }
+                        consume(1)?;
+                    }
+                }
+            } else {
+                tokens.push(Token {
+                    tok_type: TokenType::TokDivide,
+                    value: None,
+                });
                 consume(1)?;
             }
-            if Some('*') == peek(1) {
-                consume(2)?;
-                while let Some(next_char) = peek(1) {
-                    if next_char == '*' {
-                        if peek(2) == Some('/') {
-                            consume(2)?;
-                            break;
-                        }
-                    }
-                    if next_char == '\n' {
-                        line += 1;
-                    }
-                    consume(1)?;
-                }
+        } else if ch == '&' {
+            consume(1)?;
+            if Some('&') == peek(1) {
+                consume(1)?;
+                tokens.push(Token {
+                    tok_type: TokenType::TokAnd,
+                    value: None,
+                });
+            } else {
+                tokens.push(Token {
+                    tok_type: TokenType::TokAmpersand,
+                    value: None,
+                });
             }
         } else {
-            println!("Unknown token");
-            consume(1).expect("Failed to consume char.");
+            println!("Unknown character {}", ch);
+            consume(1)?;
         }
     }
-
-    println!("Consumed all the chars");
+    println!("Consumed all the chars {}", line);
     Ok(tokens)
 }
 
+/// # Peek
+///
+/// Peeks at a character in the source code without consuming it.
+///
+/// # Arguments
+///
+/// * `forward` - A usize of how far forward to look. 0 is the current character.
+///
+/// # Returns
+///
+/// * `Option<char>` - Returns Some(char) if there is a character to peek at, otherwise None.
 fn peek(forward: usize) -> Option<char> {
     unsafe {
         let source = SOURCE.get()?;
@@ -289,6 +532,17 @@ fn peek(forward: usize) -> Option<char> {
     }
 }
 
+/// # Consume
+///
+/// Consumes a given amount of characters from the source.
+///
+/// # Arguments
+///
+/// * `amount` - A usize of how many characters to consume
+///
+/// # Returns
+///
+/// * `Result<(), String>` - Returns Ok if successful or an error message if not.
 fn consume(amount: usize) -> Result<(), String> {
     unsafe {
         if let Some(source) = SOURCE.get() {
