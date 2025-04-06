@@ -1,3 +1,4 @@
+// Tokenizer
 use std::{result::Result, sync::OnceLock, usize};
 
 // use crate::zlog::{self};
@@ -113,7 +114,7 @@ pub enum TokenType {
 pub struct Token {
     pub tok_type: TokenType,
     pub value: Option<String>,
-    // pub line: u32,
+    pub line: u32,
 }
 
 /// # Tokenizer
@@ -136,11 +137,19 @@ pub fn tokenize(src: String) -> Result<Vec<Token>, String> {
         }
     }
     let mut tokens: Vec<Token> = Vec::new();
-    let mut line: i32 = 0;
+    let mut line: u32 = 1;
     while let Some(ch) = peek(0) {
         let mut tok_buf: String;
 
         if ch.is_whitespace() {
+            if ch == '\n' {
+                tokens.push(Token {
+                    tok_type: TokenType::TokNewline,
+                    value: None,
+                    line,
+                });
+                line += 1;
+            }
             consume(1)?;
             continue;
         } else if ch.is_alphabetic() {
@@ -203,6 +212,7 @@ pub fn tokenize(src: String) -> Result<Vec<Token>, String> {
                 } else {
                     None
                 },
+                line,
             });
         } else if ch.is_numeric() {
             tok_buf = String::new();
@@ -219,23 +229,27 @@ pub fn tokenize(src: String) -> Result<Vec<Token>, String> {
             tokens.push(Token {
                 tok_type: TokenType::TokNumLiteral,
                 value: Some(tok_buf),
+                line,
             });
         } else if ch == '(' {
             tokens.push(Token {
                 tok_type: TokenType::TokLeftParen,
                 value: None,
+                line,
             });
             consume(1)?;
         } else if ch == ')' {
             tokens.push(Token {
                 tok_type: TokenType::TokRightParen,
                 value: None,
+                line,
             });
             consume(1)?;
         } else if ch == ',' {
             tokens.push(Token {
                 tok_type: TokenType::TokComma,
                 value: None,
+                line,
             });
             consume(1)?;
         } else if ch == ':' {
@@ -243,12 +257,14 @@ pub fn tokenize(src: String) -> Result<Vec<Token>, String> {
                 tokens.push(Token {
                     tok_type: TokenType::TokDoubleColon,
                     value: None,
+                    line,
                 });
                 consume(2)?;
             } else {
                 tokens.push(Token {
                     tok_type: TokenType::TokColon,
                     value: None,
+                    line,
                 });
                 consume(1)?;
             }
@@ -256,18 +272,21 @@ pub fn tokenize(src: String) -> Result<Vec<Token>, String> {
             tokens.push(Token {
                 tok_type: TokenType::TokBang,
                 value: None,
+                line,
             });
             consume(1)?;
         } else if ch == '^' {
             tokens.push(Token {
                 tok_type: TokenType::TokBitXor,
                 value: None,
+                line,
             });
             consume(1)?;
         } else if ch == '~' {
             tokens.push(Token {
                 tok_type: TokenType::TokTilde,
                 value: None,
+                line,
             });
             consume(1)?;
         } else if ch == '-' {
@@ -275,24 +294,28 @@ pub fn tokenize(src: String) -> Result<Vec<Token>, String> {
                 tokens.push(Token {
                     tok_type: TokenType::TokArrow,
                     value: None,
+                    line,
                 });
                 consume(2)?;
             } else if Some('-') == peek(1) {
                 tokens.push(Token {
                     tok_type: TokenType::TokDecrement,
                     value: None,
+                    line,
                 });
                 consume(2)?;
             } else if Some('=') == peek(1) {
                 tokens.push(Token {
                     tok_type: TokenType::TokMinusEqual,
                     value: None,
+                    line,
                 });
                 consume(2)?;
             } else {
                 tokens.push(Token {
                     tok_type: TokenType::TokMinus,
                     value: None,
+                    line,
                 });
                 consume(1)?;
             }
@@ -301,18 +324,21 @@ pub fn tokenize(src: String) -> Result<Vec<Token>, String> {
                 tokens.push(Token {
                     tok_type: TokenType::TokIncrement,
                     value: None,
+                    line,
                 });
                 consume(2)?;
             } else if Some('=') == peek(1) {
                 tokens.push(Token {
                     tok_type: TokenType::TokPlusEqual,
                     value: None,
+                    line,
                 });
                 consume(2)?;
             } else {
                 tokens.push(Token {
                     tok_type: TokenType::TokPlus,
                     value: None,
+                    line,
                 });
                 consume(1)?;
             }
@@ -321,33 +347,37 @@ pub fn tokenize(src: String) -> Result<Vec<Token>, String> {
                 tokens.push(Token {
                     tok_type: TokenType::TokTimesEqual,
                     value: None,
+                    line,
                 });
                 consume(2)?;
             } else {
                 tokens.push(Token {
                     tok_type: TokenType::TokAsterisk,
                     value: None,
+                    line,
                 });
                 consume(1)?;
             }
         } else if ch == '<' {
-            // [TODO]: Implement less than or equal to token
             if Some('=') == peek(1) {
                 tokens.push(Token {
                     tok_type: TokenType::TokLessEqual,
                     value: None,
+                    line,
                 });
                 consume(2)?;
             } else if Some('<') == peek(1) {
                 tokens.push(Token {
                     tok_type: TokenType::TokLeftShift,
                     value: None,
+                    line,
                 });
                 consume(2)?;
             } else {
                 tokens.push(Token {
                     tok_type: TokenType::TokLeftAngle,
                     value: None,
+                    line,
                 });
                 consume(1)?;
             }
@@ -356,18 +386,21 @@ pub fn tokenize(src: String) -> Result<Vec<Token>, String> {
                 tokens.push(Token {
                     tok_type: TokenType::TokGreaterEqual,
                     value: None,
+                    line,
                 });
                 consume(2)?;
             } else if Some('>') == peek(1) {
                 tokens.push(Token {
                     tok_type: TokenType::TokRightShift,
                     value: None,
+                    line,
                 });
                 consume(2)?;
             } else {
                 tokens.push(Token {
                     tok_type: TokenType::TokRightAngle,
                     value: None,
+                    line,
                 });
                 consume(1)?;
             }
@@ -375,6 +408,7 @@ pub fn tokenize(src: String) -> Result<Vec<Token>, String> {
             tokens.push(Token {
                 tok_type: TokenType::TokQuestion,
                 value: None,
+                line,
             });
             consume(1)?;
         } else if ch == '.' {
@@ -384,18 +418,21 @@ pub fn tokenize(src: String) -> Result<Vec<Token>, String> {
                     tokens.push(Token {
                         tok_type: TokenType::TokEllipsis,
                         value: None,
+                        line,
                     });
                     consume(1)?;
                 } else {
                     tokens.push(Token {
                         tok_type: TokenType::TokRange,
                         value: None,
+                        line,
                     });
                 }
             } else {
                 tokens.push(Token {
                     tok_type: TokenType::TokDot,
                     value: None,
+                    line,
                 });
                 consume(1)?;
             }
@@ -416,6 +453,7 @@ pub fn tokenize(src: String) -> Result<Vec<Token>, String> {
             tokens.push(Token {
                 tok_type: TokenType::TokStringLiteral,
                 value: Some(tok_buf),
+                line,
             });
         } else if ch == '@' {
             tok_buf = String::from("@");
@@ -437,48 +475,56 @@ pub fn tokenize(src: String) -> Result<Vec<Token>, String> {
             tokens.push(Token {
                 tok_type: TokenType::TokMacro,
                 value: Some(tok_buf),
+                line,
             });
         } else if ch == '=' {
             if peek(1) == Some('=') {
                 tokens.push(Token {
                     tok_type: TokenType::TokEquals,
                     value: None,
+                    line,
                 });
                 consume(2)?;
             }
             tokens.push(Token {
                 tok_type: TokenType::TokAssign,
                 value: None,
+                line,
             });
             consume(1)?;
         } else if ch == ';' {
             tokens.push(Token {
                 tok_type: TokenType::TokSemi,
                 value: None,
+                line,
             });
             consume(1)?;
         } else if ch == '{' {
             tokens.push(Token {
                 tok_type: TokenType::TokLeftBrace,
                 value: None,
+                line,
             });
             consume(1)?;
         } else if ch == '}' {
             tokens.push(Token {
                 tok_type: TokenType::TokRightBrace,
                 value: None,
+                line,
             });
             consume(1)?;
         } else if ch == '[' {
             tokens.push(Token {
                 tok_type: TokenType::TokLeftBracket,
                 value: None,
+                line,
             });
             consume(1)?;
         } else if ch == ']' {
             tokens.push(Token {
                 tok_type: TokenType::TokRightBracket,
                 value: None,
+                line,
             });
             consume(1)?;
         } else if ch == '|' {
@@ -486,12 +532,14 @@ pub fn tokenize(src: String) -> Result<Vec<Token>, String> {
                 tokens.push(Token {
                     tok_type: TokenType::TokOr,
                     value: None,
+                    line,
                 });
                 consume(2)?;
             } else {
                 tokens.push(Token {
                     tok_type: TokenType::TokBitOr,
                     value: None,
+                    line,
                 });
                 consume(1)?;
             }
@@ -524,6 +572,7 @@ pub fn tokenize(src: String) -> Result<Vec<Token>, String> {
                 tokens.push(Token {
                     tok_type: TokenType::TokDivide,
                     value: None,
+                    line,
                 });
                 consume(1)?;
             }
@@ -534,11 +583,13 @@ pub fn tokenize(src: String) -> Result<Vec<Token>, String> {
                 tokens.push(Token {
                     tok_type: TokenType::TokAnd,
                     value: None,
+                    line,
                 });
             } else {
                 tokens.push(Token {
                     tok_type: TokenType::TokAmpersand,
                     value: None,
+                    line,
                 });
             }
         } else {
@@ -546,7 +597,12 @@ pub fn tokenize(src: String) -> Result<Vec<Token>, String> {
             consume(1)?;
         }
     }
-    println!("Consumed all the chars {}", line);
+    tokens.push(Token {
+        tok_type: TokenType::TokEOF,
+        value: None,
+        line,
+    });
+    println!("Consumed all the chars. Total lines: {}", line);
     Ok(tokens)
 }
 
@@ -587,13 +643,12 @@ fn peek(forward: usize) -> Option<char> {
 fn consume(amount: usize) -> Result<(), String> {
     unsafe {
         if let Some(source) = SOURCE.get() {
-            if INDEX + amount < source.len() {
+            if INDEX + amount <= source.len() {
                 INDEX += amount;
                 Ok(())
             } else {
-                Err(format!(
-                    "Unable to consume {amount} of characters. Out of bounds."
-                ))
+                INDEX = source.len();
+                Ok(())
             }
         } else {
             Err("SOURCE not initialized".to_string())

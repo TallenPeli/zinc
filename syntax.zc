@@ -124,11 +124,6 @@ fun change_val(str: &string, new_value: string) -> void {
     *str = new_value;
 }
 
-// Void functions still need to tell the compiler that they are void. The compiler will infer this, but it makes code more readable.
-fun void_function() -> void {
-    println("Hello, world!");
-}
-
 // Functions can return a type.
 fun can_error(x: i32, y: i32) -> i32 {
     try {
@@ -141,4 +136,39 @@ fun can_error(x: i32, y: i32) -> i32 {
         println(e);
         return 0;
     }
+}
+
+// Void functions still need to tell the compiler that they are void. The compiler will infer this, but it makes code more readable.
+fun void_function() -> void {
+    println("Hello, world!");
+}
+
+// I might add tuples
+fun add_tuple(x: i32, y: i32) -> (i32, i32) {
+    return (x + y, x - y);
+}
+
+// Tuples can have more than 2 values
+fun add_tuple_three(x: i32, y: i32, z: i32) -> (i32, i32, i32) {
+    return (x + y + z, x - y - z, x * y * z);
+}
+
+// etc...
+
+// You can also use ':' to specify a return type for the Function. This make it not optional
+fun colon_return_type(x: i32, y: i32): i32 {
+    return x + y;
+}
+
+// You can't use them for a tuple though, only for an arrow return
+fun colon_return_tuple(x: i32, y: i32): (i32, i32) { // Not valid code
+    return (x + y, x - y);
+}
+
+// if you use -> then the return type is optional
+fun arrow_return(x: i32, y: i32) -> i32 {
+    if x == 42 {
+        return x + y;
+    }
+    // Will return void if not 42
 }
