@@ -2,3 +2,8 @@
 fun main() -> i32 {
     return 42;
 }
+
+// Test to see if it will skip
+fun test() -> i32 {
+    return 42;
+}

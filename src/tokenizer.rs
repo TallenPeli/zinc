@@ -1,4 +1,5 @@
 // Tokenizer
+use crate::Settings;
 use crate::zlog::{self};
 use std::{result::Result, usize};
 
@@ -58,37 +59,43 @@ pub enum TokenType {
     TokAt,            // '@' for calling a macro ✅
 
     // Operators
-    TokAmpersand,    // '&'  (reference operator) ✅
-    TokAsterisk,     // '*'  (dereference or multiplication) ✅
-    TokArrow,        // '->' (used for return types) ✅
-    TokColon,        // ':'  (for type annotations) ✅
-    TokDoubleColon,  // '::' (alternative for scope resolution) ✅
-    TokModulo,       // '%'  (modulo operator) ✅
-    TokPlus,         // '+'  (addition or unary plus) ✅
-    TokMinus,        // '-'  (subtraction or unary minus) ✅
-    TokIncrement,    // '++' (increment) ✅
-    TokDecrement,    // '--' (decrement) ✅
-    TokEquals,       // '==' (comparison) ✅
-    TokTimesEqual,   // '*=' (multiplication assignment) ✅
-    TokDivideEqual,  // '/=' (division assignment) ✅
-    TokPlusEqual,    // '+=' (addition assignment) ✅
-    TokMinusEqual,   // '-=' (subtraction assignment) ✅
-    TokModuloEqual,  // '%=' (modulo assignment) ✅
-    TokNotEquals,    // '!=' (comparison) ✅
-    TokLeftAngle,    // '<'  (comparison) ✅
-    TokRightAngle,   // '>'  (comparison) ✅
-    TokLessEqual,    // '<=' (comparison) ✅
-    TokGreaterEqual, // '>=' (comparison) ✅
-    TokBitOr,        // '|'  (bitwise OR) ✅
-    TokBitXor,       // '^'  (bitwise XOR) ✅
-    TokTilde,        // '~'  (bitwise NOT) ✅
-    TokLeftShift,    // '<<' (bitwise left shift) ✅
-    TokRightShift,   // '>>' (bitwise right shift) ✅
-    TokEllipsis,     // '...' (variadic functions or range) ✅
-    TokQuestion,     // '?'  (optional types or ternary operator) ✅
-    TokDollar,       // '$'  (Might use later) ✅
-    TokRange,        // '..' (used for range. i.e. 1..10 '1 to 10') ✅
-    TokDivide,       // '/'  (division) ✅
+    TokAmpersand,       // '&'  (reference operator) ✅
+    TokAsterisk,        // '*'  (dereference or multiplication) ✅
+    TokArrow,           // '->' (used for return types) ✅
+    TokColon,           // ':'  (for type annotations) ✅
+    TokDoubleColon,     // '::' (alternative for scope resolution) ✅
+    TokModulo,          // '%'  (modulo operator) ✅
+    TokPlus,            // '+'  (addition or unary plus) ✅
+    TokMinus,           // '-'  (subtraction or unary minus) ✅
+    TokIncrement,       // '++' (increment) ✅
+    TokDecrement,       // '--' (decrement) ✅
+    TokEquals,          // '==' (comparison) ✅
+    TokTimesEqual,      // '*=' (multiplication assignment) ✅
+    TokDivideEqual,     // '/=' (division assignment) ✅
+    TokPlusEqual,       // '+=' (addition assignment) ✅
+    TokMinusEqual,      // '-=' (subtraction assignment) ✅
+    TokModuloEqual,     // '%=' (modulo assignment) ✅
+    TokNotEquals,       // '!=' (comparison) ✅
+    TokBitAndEqual,     // '&=' (bitwise AND assignment)
+    TokBitOrEqual,      // '|=' (bitwise OR assignment)
+    TokBitXorEqual,     // '^=' (bitwise XOR assignment) ✅
+    TokBitNotEqual,     // '~=' (bitwise NOT assignment)
+    TokLeftShiftEqual,  // '<<=' (bitwise left shift assignment)
+    TokRightShiftEqual, // '>>=' (bitwise right shift assignment)
+    TokLeftAngle,       // '<'  (comparison) ✅
+    TokRightAngle,      // '>'  (comparison) ✅
+    TokLessEqual,       // '<=' (comparison) ✅
+    TokGreaterEqual,    // '>=' (comparison) ✅
+    TokBitOr,           // '|'  (bitwise OR) ✅
+    TokBitXor,          // '^'  (bitwise XOR) ✅
+    TokBitNot,          // '~'  (bitwise NOT) ✅
+    TokLeftShift,       // '<<' (bitwise left shift) ✅
+    TokRightShift,      // '>>' (bitwise right shift) ✅
+    TokEllipsis,        // '...' (variadic functions or range) ✅
+    TokQuestion,        // '?'  (optional types or ternary operator) ✅
+    TokDollar,          // '$'  (Might use later) ✅
+    TokRange,           // '..' (used for range. i.e. 1..10 '1 to 10') ✅
+    TokDivide,          // '/'  (division) ✅
 
     // Logical Operators
     TokAnd,  // '&&'  (logical AND) ✅
@@ -113,18 +120,38 @@ pub struct Token {
     pub line: u32,
 }
 
-pub struct Tokenizer {
+pub struct Tokenizer<'a> {
     src: String,
     index: usize,
     line: u32,
+    settings: &'a Settings,
 }
 
-impl Tokenizer {
-    pub fn new(src: String) -> Self {
+impl<'a> Tokenizer<'a> {
+    /// # New
+    ///
+    /// Create a new tokenizer with the given source code and settings.
+    ///
+    /// # Arguments
+    ///
+    /// * `src` - The source code to tokenize.
+    /// * `&settings` - The settings to use for tokenization.
+    ///
+    /// # Usage
+    ///
+    /// ```
+    /// let src = String::from("fun main() -> i32 { return 0; }");
+    /// let settings = Settings::default();
+    /// let mut tokenizer = Tokenizer::new(src, &settings);
+    /// let tokens = tokenizer.tokenize().unwrap();
+    /// ```
+    ///
+    pub fn new(src: String, settings: &'a Settings) -> Self {
         Tokenizer {
             src,
             index: 0,
             line: 1,
+            settings,
         }
     }
 
@@ -260,307 +287,6 @@ impl Tokenizer {
                     value: Some(tok_buf),
                     line: self.line,
                 });
-            } else if ch == '(' {
-                tokens.push(Token {
-                    tok_type: TokenType::TokLeftParen,
-                    value: None,
-                    line: self.line,
-                });
-                self.consume(1);
-            } else if ch == ')' {
-                tokens.push(Token {
-                    tok_type: TokenType::TokRightParen,
-                    value: None,
-                    line: self.line,
-                });
-                self.consume(1);
-            } else if ch == ',' {
-                tokens.push(Token {
-                    tok_type: TokenType::TokComma,
-                    value: None,
-                    line: self.line,
-                });
-                self.consume(1);
-            } else if ch == ':' {
-                if Some(':') == self.peek(1) {
-                    tokens.push(Token {
-                        tok_type: TokenType::TokDoubleColon,
-                        value: None,
-                        line: self.line,
-                    });
-                    self.consume(2);
-                } else {
-                    tokens.push(Token {
-                        tok_type: TokenType::TokColon,
-                        value: None,
-                        line: self.line,
-                    });
-                    self.consume(1);
-                }
-            } else if ch == '!' {
-                self.consume(1);
-                if Some('=') == self.peek(0) {
-                    tokens.push(Token {
-                        tok_type: TokenType::TokNotEquals,
-                        value: None,
-                        line: self.line,
-                    });
-                    self.consume(1);
-                } else {
-                    tokens.push(Token {
-                        tok_type: TokenType::TokBang,
-                        value: None,
-                        line: self.line,
-                    });
-                }
-            } else if ch == '^' {
-                tokens.push(Token {
-                    tok_type: TokenType::TokBitXor,
-                    value: None,
-                    line: self.line,
-                });
-                self.consume(1);
-            } else if ch == '~' {
-                tokens.push(Token {
-                    tok_type: TokenType::TokTilde,
-                    value: None,
-                    line: self.line,
-                });
-                self.consume(1);
-            } else if ch == '-' {
-                self.consume(1);
-                let next_char = self.peek(0);
-                let tok_type: TokenType = match next_char {
-                    Some('>') => {
-                        self.consume(1);
-                        TokenType::TokArrow
-                    }
-                    Some('-') => {
-                        self.consume(1);
-                        TokenType::TokDecrement
-                    }
-                    _ => TokenType::TokMinus,
-                };
-                tokens.push(Token {
-                    tok_type,
-                    value: None,
-                    line: self.line,
-                });
-            } else if ch == '+' {
-                self.consume(1);
-                let next_char = self.peek(0);
-                let tok_type: TokenType = match next_char {
-                    Some('+') => {
-                        self.consume(1);
-                        TokenType::TokIncrement
-                    }
-                    Some('=') => {
-                        self.consume(1);
-                        TokenType::TokPlusEqual
-                    }
-                    _ => TokenType::TokPlus,
-                };
-                tokens.push(Token {
-                    tok_type,
-                    value: None,
-                    line: self.line,
-                });
-            } else if ch == '*' {
-                self.consume(1);
-                let tok_type: TokenType = match self.peek(0) {
-                    Some('=') => {
-                        self.consume(1);
-                        TokenType::TokTimesEqual
-                    }
-                    _ => TokenType::TokAsterisk,
-                };
-                tokens.push(Token {
-                    tok_type,
-                    value: None,
-                    line: self.line,
-                });
-            } else if ch == '%' {
-                self.consume(1);
-                let tok_type: TokenType = match self.peek(0) {
-                    Some('=') => {
-                        self.consume(1);
-                        TokenType::TokModuloEqual
-                    }
-                    _ => TokenType::TokModulo,
-                };
-                tokens.push(Token {
-                    tok_type,
-                    value: None,
-                    line: self.line,
-                });
-            } else if ch == '<' {
-                self.consume(1);
-                let tok_type: TokenType = match self.peek(0) {
-                    Some('=') => {
-                        self.consume(1);
-                        TokenType::TokLessEqual
-                    }
-                    Some('<') => {
-                        self.consume(1);
-                        TokenType::TokLeftShift
-                    }
-                    _ => TokenType::TokLeftAngle,
-                };
-                tokens.push(Token {
-                    tok_type,
-                    value: None,
-                    line: self.line,
-                });
-            } else if ch == '>' {
-                self.consume(1);
-                let tok_type: TokenType = match self.peek(0) {
-                    Some('=') => {
-                        self.consume(1);
-                        TokenType::TokGreaterEqual
-                    }
-                    Some('>') => {
-                        self.consume(1);
-                        TokenType::TokRightShift
-                    }
-                    _ => TokenType::TokRightAngle,
-                };
-                tokens.push(Token {
-                    tok_type,
-                    value: None,
-                    line: self.line,
-                });
-            } else if ch == '?' {
-                self.consume(1);
-                tokens.push(Token {
-                    tok_type: TokenType::TokQuestion,
-                    value: None,
-                    line: self.line,
-                });
-            } else if ch == '$' {
-                self.consume(1);
-                tokens.push(Token {
-                    tok_type: TokenType::TokDollar,
-                    value: None,
-                    line: self.line,
-                });
-            } else if ch == '.' {
-                self.consume(1);
-                let tok_type: TokenType = match self.peek(0) {
-                    Some('.') => {
-                        if Some('.') == self.peek(1) {
-                            self.consume(2);
-                            TokenType::TokEllipsis
-                        } else {
-                            self.consume(1);
-                            TokenType::TokRange
-                        }
-                    }
-                    _ => TokenType::TokDot,
-                };
-                tokens.push(Token {
-                    tok_type,
-                    value: None,
-                    line: self.line,
-                });
-            } else if ch == '"' {
-                tok_buf = String::new();
-                tok_buf.push(ch);
-                self.consume(1);
-                while let Some(next_char) = self.peek(0) {
-                    if next_char == '"' {
-                        tok_buf.push(next_char);
-                        self.consume(1);
-                        break;
-                    } else {
-                        tok_buf.push(next_char);
-                        self.consume(1);
-                    }
-                }
-                tokens.push(Token {
-                    tok_type: TokenType::TokStringLiteral,
-                    value: Some(tok_buf),
-                    line: self.line,
-                });
-            } else if ch == '@' {
-                self.consume(1);
-                tokens.push(Token {
-                    tok_type: TokenType::TokAt,
-                    value: None,
-                    line: self.line,
-                });
-            } else if ch == '#' {
-                self.consume(1);
-                tokens.push(Token {
-                    tok_type: TokenType::TokPound,
-                    value: None,
-                    line: self.line,
-                });
-            } else if ch == '=' {
-                if self.peek(1) == Some('=') {
-                    tokens.push(Token {
-                        tok_type: TokenType::TokEquals,
-                        value: None,
-                        line: self.line,
-                    });
-                    self.consume(2);
-                }
-                tokens.push(Token {
-                    tok_type: TokenType::TokAssign,
-                    value: None,
-                    line: self.line,
-                });
-                self.consume(1);
-            } else if ch == ';' {
-                tokens.push(Token {
-                    tok_type: TokenType::TokSemi,
-                    value: None,
-                    line: self.line,
-                });
-                self.consume(1);
-            } else if ch == '{' {
-                tokens.push(Token {
-                    tok_type: TokenType::TokLeftBrace,
-                    value: None,
-                    line: self.line,
-                });
-                self.consume(1);
-            } else if ch == '}' {
-                tokens.push(Token {
-                    tok_type: TokenType::TokRightBrace,
-                    value: None,
-                    line: self.line,
-                });
-                self.consume(1);
-            } else if ch == '[' {
-                tokens.push(Token {
-                    tok_type: TokenType::TokLeftBracket,
-                    value: None,
-                    line: self.line,
-                });
-                self.consume(1);
-            } else if ch == ']' {
-                tokens.push(Token {
-                    tok_type: TokenType::TokRightBracket,
-                    value: None,
-                    line: self.line,
-                });
-                self.consume(1);
-            } else if ch == '|' {
-                if Some('|') == self.peek(1) {
-                    tokens.push(Token {
-                        tok_type: TokenType::TokOr,
-                        value: None,
-                        line: self.line,
-                    });
-                    self.consume(2);
-                } else {
-                    tokens.push(Token {
-                        tok_type: TokenType::TokBitOr,
-                        value: None,
-                        line: self.line,
-                    });
-                    self.consume(1);
-                }
             } else if ch == '/' {
                 if Some('/') == self.peek(1) {
                     self.consume(2);
@@ -594,25 +320,183 @@ impl Tokenizer {
                     });
                     self.consume(1);
                 }
-            } else if ch == '&' {
+            } else if ch == '"' {
+                tok_buf = String::new();
+                tok_buf.push(ch);
                 self.consume(1);
-                if Some('&') == self.peek(1) {
-                    self.consume(1);
-                    tokens.push(Token {
-                        tok_type: TokenType::TokAnd,
-                        value: None,
-                        line: self.line,
-                    });
-                } else {
-                    tokens.push(Token {
-                        tok_type: TokenType::TokAmpersand,
-                        value: None,
-                        line: self.line,
-                    });
+                while let Some(next_char) = self.peek(0) {
+                    if next_char == '"' {
+                        tok_buf.push(next_char);
+                        self.consume(1);
+                        break;
+                    } else {
+                        tok_buf.push(next_char);
+                        self.consume(1);
+                    }
                 }
+                tokens.push(Token {
+                    tok_type: TokenType::TokStringLiteral,
+                    value: Some(tok_buf),
+                    line: self.line,
+                });
             } else {
-                println!("Unknown character {}", ch);
                 self.consume(1);
+                let tok_type: TokenType = match ch {
+                    ':' => {
+                        if Some(':') == self.peek(0) {
+                            self.consume(1);
+                            TokenType::TokDoubleColon
+                        } else {
+                            TokenType::TokColon
+                        }
+                    }
+                    '!' => {
+                        if Some('=') == self.peek(0) {
+                            self.consume(1);
+                            TokenType::TokNotEquals
+                        } else {
+                            TokenType::TokBang
+                        }
+                    }
+                    '^' => {
+                        if Some('=') == self.peek(0) {
+                            self.consume(1);
+                            TokenType::TokBitXorEqual
+                        } else {
+                            TokenType::TokBitXor
+                        }
+                    }
+                    '~' => {
+                        if Some('=') == self.peek(0) {
+                            self.consume(1);
+                            TokenType::TokBitNotEqual
+                        } else {
+                            TokenType::TokBitNot
+                        }
+                    }
+                    '-' => {
+                        if Some('>') == self.peek(0) {
+                            self.consume(1);
+                            TokenType::TokArrow
+                        } else if Some('-') == self.peek(0) {
+                            self.consume(1);
+                            TokenType::TokDecrement
+                        } else {
+                            TokenType::TokMinus
+                        }
+                    }
+                    '+' => {
+                        if Some('+') == self.peek(0) {
+                            self.consume(1);
+                            TokenType::TokIncrement
+                        } else if Some('=') == self.peek(0) {
+                            self.consume(1);
+                            TokenType::TokPlusEqual
+                        } else {
+                            TokenType::TokPlus
+                        }
+                    }
+                    '*' => {
+                        if Some('=') == self.peek(0) {
+                            self.consume(1);
+                            TokenType::TokTimesEqual
+                        } else {
+                            TokenType::TokAsterisk
+                        }
+                    }
+                    '%' => {
+                        if Some('=') == self.peek(0) {
+                            self.consume(1);
+                            TokenType::TokModuloEqual
+                        } else {
+                            TokenType::TokModulo
+                        }
+                    }
+                    '<' => {
+                        if Some('=') == self.peek(0) {
+                            self.consume(1);
+                            TokenType::TokLessEqual
+                        } else if Some('<') == self.peek(0) {
+                            self.consume(1);
+                            TokenType::TokLeftShift
+                        } else {
+                            TokenType::TokLeftAngle
+                        }
+                    }
+                    '>' => {
+                        if Some('=') == self.peek(0) {
+                            self.consume(1);
+                            TokenType::TokGreaterEqual
+                        } else if Some('>') == self.peek(0) {
+                            self.consume(1);
+                            TokenType::TokRightShift
+                        } else {
+                            TokenType::TokRightAngle
+                        }
+                    }
+                    '.' => {
+                        if Some('.') == self.peek(0) {
+                            self.consume(1);
+                            TokenType::TokRange
+                        } else if Some('.') == self.peek(1) {
+                            self.consume(1);
+                            TokenType::TokEllipsis
+                        } else {
+                            TokenType::TokDot
+                        }
+                    }
+                    '=' => {
+                        if Some('=') == self.peek(0) {
+                            self.consume(1);
+                            TokenType::TokEquals
+                        } else {
+                            TokenType::TokAssign
+                        }
+                    }
+                    '|' => {
+                        if Some('|') == self.peek(0) {
+                            self.consume(1);
+                            TokenType::TokBitOr
+                        } else if Some('=') == self.peek(0) {
+                            self.consume(1);
+                            TokenType::TokBitOrEqual
+                        } else {
+                            TokenType::TokOr
+                        }
+                    }
+                    '&' => {
+                        if Some('&') == self.peek(0) {
+                            self.consume(1);
+                            TokenType::TokAnd
+                        } else if Some('=') == self.peek(0) {
+                            self.consume(1);
+                            TokenType::TokBitAndEqual
+                        } else {
+                            TokenType::TokAmpersand
+                        }
+                    }
+                    '$' => TokenType::TokDollar,
+                    '?' => TokenType::TokQuestion,
+                    '@' => TokenType::TokAt,
+                    '#' => TokenType::TokPound,
+                    ';' => TokenType::TokSemi,
+                    '{' => TokenType::TokLeftBrace,
+                    '}' => TokenType::TokRightBrace,
+                    '(' => TokenType::TokLeftParen,
+                    ')' => TokenType::TokRightParen,
+                    '[' => TokenType::TokLeftBracket,
+                    ']' => TokenType::TokRightBracket,
+                    ',' => TokenType::TokComma,
+                    _ => {
+                        continue;
+                    }
+                };
+                // Push the token
+                tokens.push(Token {
+                    tok_type,
+                    value: None,
+                    line: self.line,
+                });
             }
         }
         tokens.push(Token {
@@ -620,7 +504,14 @@ impl Tokenizer {
             value: None,
             line: self.line,
         });
-        zlog::verbose(&format!("Tokenized the source. Total Lines: {}", self.line));
+        zlog::verbose(
+            &format!(
+                "Tokenization Completed. Lines: {}, Tokens: {}",
+                self.line,
+                tokens.len()
+            ),
+            self.settings,
+        );
         Ok(tokens)
     }
 

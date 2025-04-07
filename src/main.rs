@@ -2,7 +2,6 @@ use colored::Colorize;
 use std::env;
 use std::fs::File;
 use std::io::prelude::*;
-use std::sync::OnceLock;
 include!(concat!(env!("OUT_DIR"), "/build_info.rs"));
 
 mod tokenizer;
@@ -11,11 +10,18 @@ mod zlog;
 const VERSION: &str = "0.0.1-pre";
 const BUILD_ID: &str = BUILD_TIMESTAMP;
 const NAME: &str = "zinc";
-static IS_VERBOSE: OnceLock<bool> = OnceLock::new();
+
+#[derive(Clone, Default)]
+struct Settings {
+    is_verbose: bool,
+    is_print_tokens: bool,
+    is_no_color: bool,
+}
 
 fn main() -> std::io::Result<()> {
     let args: Vec<String> = env::args().collect();
     let mut src: String = String::new();
+    let mut settings: Settings = Settings::default();
 
     if args.len() >= 2 {
         let mut input_file_str: String = String::new();
@@ -23,11 +29,7 @@ fn main() -> std::io::Result<()> {
         for arg in &args {
             if arg == "--help" || arg == "-h" {
                 println!(
-                    "Usage: zinc [options] file\nOptions:\n
-                    \t-h,\t--help\t\t\tDisplay this information.\n
-                    \t-v,\t--version\t\tPrint the version of ZINC\n
-                    \t--vb,\t--verbose\t\tPrint verbose logs.\n
-                    \t"
+                    "Usage: zinc [options] file\nOptions:\n\t-h,\t--help\t\t\tDisplay this information.\n\t-v,\t--version\t\tPrint the version of ZINC\n\t--vb,\t--verbose\t\tPrint verbose logs.\n\t--pt,\t--print-tokens\t\tPrints the output of the tokenizer.\n\t--no-color\t\t\tDisable color output."
                 );
                 return Ok(());
             } else if arg == "--version" || arg == "-v" {
@@ -35,16 +37,27 @@ fn main() -> std::io::Result<()> {
 warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.");
                 return Ok(());
             } else if arg == "--verbose" || arg == "--vb" {
-                IS_VERBOSE
-                    .set(true)
-                    .expect("Failed to set IS_VERBOSE to true. Terminating.");
-                zlog::verbose("Flag `verbose` set to `true`");
+                settings.is_verbose = true;
+            } else if arg == "--print-tokens" || arg == "--pt" {
+                settings.is_print_tokens = true;
+            } else if arg == "--no-color" || arg == "--nc" {
+                settings.is_no_color = true;
             } else if arg.starts_with('-') {
-                zlog::warn(&format!("Unknown argument `{}`", arg));
+                zlog::warn(&format!("Unknown argument `{}`", arg), &settings);
             } else {
                 if arg != NAME {
                     input_file_str = arg.to_string();
                 }
+            }
+        }
+
+        if settings.is_verbose {
+            zlog::verbose("Running in verbose mode.", &settings);
+            if settings.is_no_color {
+                zlog::verbose("Running without color output.", &settings);
+            }
+            if settings.is_print_tokens {
+                zlog::verbose("Printing generated tokens set to `true`", &settings);
             }
         }
 
@@ -61,56 +74,60 @@ warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.");
                 src_path = cwd.display().to_string() + "/" + &input_file_str;
             }
 
-            zlog::verbose(&format!(
-                "Absolute source file path: {}",
-                src_path.to_string().blue()
-            ));
+            zlog::verbose(
+                &format!("Absolute source file path: {}", src_path.to_string()),
+                &settings,
+            );
 
             match read_file_to_string(&src_path, &mut src) {
                 Ok(()) => {}
                 Err(e) => {
-                    zlog::err(&format!(
-                        "Failed to read file contents to string due to error {}",
-                        e
-                    ));
+                    zlog::err(
+                        &format!("Failed to read file contents to string due to error {}", e),
+                        &settings,
+                    );
                     return Err(e);
                 }
             }
 
-            let mut tokenizer: tokenizer::Tokenizer = tokenizer::Tokenizer::new(src);
+            let mut tokenizer: tokenizer::Tokenizer = tokenizer::Tokenizer::new(src, &settings);
             match tokenizer.tokenize() {
                 Ok(tokens) => {
-                    zlog::verbose(&format!(
-                        "Tokenized source file contents. Total tokens: {}",
-                        tokens.len().to_string().blue()
-                    ));
-                    // Print the tokens out
-                    let all_token_string = tokens
-                        .iter()
-                        .map(|token| format!("{:#?}", token))
-                        .collect::<Vec<String>>()
-                        .join("\n");
-                    zlog::verbose(&all_token_string);
+                    if settings.is_print_tokens {
+                        // Print the tokens out
+                        let all_token_string: String = tokens
+                            .iter()
+                            .map(|token| format!("{:#?}", token))
+                            .collect::<Vec<String>>()
+                            .join("\n");
+                        zlog::log(&all_token_string, &settings);
+                    }
                 }
                 Err(e) => {
-                    zlog::err(&format!(
-                        "Failed to tokenize source file contents due to error {}",
-                        e
-                    ));
+                    zlog::err(
+                        &format!("Failed to tokenize source file contents due to error {}", e),
+                        &settings,
+                    );
                     return Err(std::io::Error::new(std::io::ErrorKind::Other, e));
                 }
             }
         } else {
-            zlog::err(&format!(
-                "{}: fatal error: No input file(s). Type --help for usage.",
-                NAME.green()
-            ));
+            zlog::err(
+                &format!(
+                    "{}: fatal error: No input file(s). Type --help for usage.",
+                    NAME.green()
+                ),
+                &settings,
+            );
         }
     } else {
-        zlog::err(&format!(
-            "{}: fatal error: Incorrect Usage. Type --help for usage.",
-            NAME.green()
-        ));
+        zlog::err(
+            &format!(
+                "{}: fatal error: Incorrect Usage. Type --help for usage.",
+                NAME.green()
+            ),
+            &settings,
+        );
     }
 
     Ok(())
