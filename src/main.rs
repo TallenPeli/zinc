@@ -55,10 +55,10 @@ warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.");
             // Handle different ways to handle file input
             if args[1].starts_with("./") {
                 src_path = cwd.display().to_string() + &input_file_str[1..];
-            } else if !args[1].starts_with('/') {
-                src_path = cwd.display().to_string() + "/" + &input_file_str;
-            } else {
+            } else if args[1].starts_with('/') {
                 src_path = cwd.display().to_string() + &input_file_str;
+            } else {
+                src_path = cwd.display().to_string() + "/" + &input_file_str;
             }
 
             zlog::verbose(&format!(
@@ -77,8 +77,29 @@ warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.");
                 }
             }
 
-            let tokens = tokenizer::tokenize(src).expect("Failed to tokenize");
-            println!("{:#?}", tokens);
+            let mut tokenizer: tokenizer::Tokenizer = tokenizer::Tokenizer::new(src);
+            match tokenizer.tokenize() {
+                Ok(tokens) => {
+                    zlog::verbose(&format!(
+                        "Tokenized source file contents. Total tokens: {}",
+                        tokens.len().to_string().blue()
+                    ));
+                    // Print the tokens out
+                    let all_token_string = tokens
+                        .iter()
+                        .map(|token| format!("{:#?}", token))
+                        .collect::<Vec<String>>()
+                        .join("\n");
+                    zlog::verbose(&all_token_string);
+                }
+                Err(e) => {
+                    zlog::err(&format!(
+                        "Failed to tokenize source file contents due to error {}",
+                        e
+                    ));
+                    return Err(std::io::Error::new(std::io::ErrorKind::Other, e));
+                }
+            }
         } else {
             zlog::err(&format!(
                 "{}: fatal error: No input file(s). Type --help for usage.",

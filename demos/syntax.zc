@@ -58,8 +58,8 @@ fun main(args: Vec<string> /* or args: List<string> */) -> i32 {
     foo::bar();
 
     // Floats
-    float32: f32 = 3.14;
-    float64: f64 = 3.1415926535897932384626433832795028841971693993751058209749445923078164062862089986280348253421170679;
+    Almost_pi: f32 = 3.14;
+    Closer_to_pi: f64 = 3.1415926535897932384626433832795028841971693993751058209749445923078164062862089986280348253421170679;
 
     // Variable declarations are as follows: `<name>: <type> = <value>;` i.e.
     debug: bool = true;
@@ -99,7 +99,7 @@ fun main(args: Vec<string> /* or args: List<string> */) -> i32 {
     change_val(str, "new value");
 
     // For loops `for <index value> in <range/list> {}`
-    for i in [1..10] {
+    for i in [2..10] {
         print(i); // This will count from 1 to 10
     }
 

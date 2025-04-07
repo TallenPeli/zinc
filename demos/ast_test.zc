@@ -1,0 +1,4 @@
+// Basic Zinc program to return 42
+fun main() -> i32 {
+    return 42;
+}
