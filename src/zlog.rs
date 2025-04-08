@@ -24,7 +24,7 @@ pub fn verbose(message: &str, settings: &Settings) {
         if settings.is_no_color {
             println!("[VERBOSE] {}", message);
         } else {
-            println!("{} {}", "[VERBOSE]".purple(), message.purple());
+            println!("{} {}", "[VERBOSE]".purple(), message);
         }
     }
 }
@@ -52,7 +52,7 @@ pub fn err(message: &str, settings: &Settings) {
         if settings.is_no_color {
             println!("[ERROR] {}", message);
         } else {
-            println!("{} {}", "[ERROR]".red(), message.red());
+            println!("{} {}", "[ERROR]".red(), message);
         }
     }
 }
@@ -80,7 +80,7 @@ pub fn warn(message: &str, settings: &Settings) {
         if settings.is_no_color {
             println!("[WARNING] {}", message);
         } else {
-            println!("{} {}", "[WARNING]".yellow(), message.yellow());
+            println!("{} {}", "[WARNING]".yellow(), message);
         }
     }
 }
@@ -108,7 +108,7 @@ pub fn log(message: &str, settings: &Settings) {
         if settings.is_no_color {
             println!("[LOG] {}", message);
         } else {
-            println!("{} {}", "[LOG]".green(), message.green());
+            println!("{} {}", "[LOG]".green(), message);
         }
     }
 }

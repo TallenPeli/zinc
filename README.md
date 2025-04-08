@@ -42,7 +42,7 @@ git clone https://github.com/TallenPeli/zinc && cd zinc
 Build and install
 
 ```
-cargo build --release && cargo install --path .
+cargo install --path .
 ```
 
 ## Documentation

@@ -155,6 +155,23 @@ impl<'a> Tokenizer<'a> {
         }
     }
 
+    /// # Tokenize
+    ///
+    /// Tokenizes a string of Zinc source code.
+    ///
+    /// # Arguments
+    ///
+    /// The `tokenize()` function does not take any external arguements, just a mutable reference
+    /// to a Tokenizer, which (unless changed by you) is always going to be `self`.
+    ///
+    /// # Usage
+    ///
+    /// ```
+    /// // Create a new tokenizer first, then tokenize
+    /// let mut tokenizer: tokenizer::Tokenizer = tokenizer::Tokenizer::new(src, &settings);
+    /// let tokens: Vec<Token> = tokenizer.tokenize()?; // Or you could do a match statement
+    /// ```
+    ///
     pub fn tokenize(&mut self) -> Result<Vec<Token>, String> {
         let mut tokens: Vec<Token> = Vec::new();
         while let Some(ch) = self.peek(0) {

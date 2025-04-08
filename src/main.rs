@@ -33,8 +33,7 @@ fn main() -> std::io::Result<()> {
                 );
                 return Ok(());
             } else if arg == "--version" || arg == "-v" {
-                println!("zinc (ZINC) {VERSION} {BUILD_ID}\nCopyright (C) 2025 TallenPeli\nThis is free software; see the source for copying conditions.  There is NO
-warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.");
+                println!("zinc (ZINC) {VERSION} {BUILD_ID}");
                 return Ok(());
             } else if arg == "--verbose" || arg == "--vb" {
                 settings.is_verbose = true;
