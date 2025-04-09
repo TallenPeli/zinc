@@ -1,6 +1,6 @@
 [package]
 name = "zinc"
-version = "0.0.1-pre"
+version = "0.0.1-dev"
 edition = "2024"
 
 [dependencies]

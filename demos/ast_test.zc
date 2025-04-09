@@ -1,9 +1,4 @@
 // Basic Zinc program to return 42
 fun main() -> i32 {
-    return 42;
-}
-
-// Test to see if it will skip
-fun test() -> i32 {
-    return 42;
+    return 41+1;
 }

@@ -1,4 +1,4 @@
-use crate::Settings;
+use crate::CSettings;
 use colored::Colorize;
 
 /// # Verbose Log
@@ -12,16 +12,16 @@ use colored::Colorize;
 ///
 /// # Example
 /// ```
-/// let settings = Settings {
+/// let c_settings = CSettings {
 ///     ...
 ///     is_verbose: true,
 ///     is_no_color: false,
 /// };
-/// zlog::verbose("This is a log only shown when the --verbose flag is passed.", &settings);
+/// zlog::verbose("This is a log only shown when the --verbose flag is passed.", &c_settings);
 /// ```
-pub fn verbose(message: &str, settings: &Settings) {
-    if settings.is_verbose {
-        if settings.is_no_color {
+pub fn verbose(message: &str, c_settings: &CSettings) {
+    if c_settings.is_verbose {
+        if c_settings.is_no_color {
             println!("[VERBOSE] {}", message);
         } else {
             println!("{} {}", "[VERBOSE]".purple(), message);
@@ -40,16 +40,16 @@ pub fn verbose(message: &str, settings: &Settings) {
 ///
 /// # Example
 /// ```
-/// let settings = Settings {
+/// let c_settings = CSettings {
 ///     ...
 ///     is_verbose: true,
 ///     is_no_color: false,
 /// };
-/// zlog::err("This is an error message", &settings);
+/// zlog::err("This is an error message", &c_settings);
 /// ```
-pub fn err(message: &str, settings: &Settings) {
-    if settings.is_verbose {
-        if settings.is_no_color {
+pub fn err(message: &str, c_settings: &CSettings) {
+    if c_settings.is_verbose {
+        if c_settings.is_no_color {
             println!("[ERROR] {}", message);
         } else {
             println!("{} {}", "[ERROR]".red(), message);
@@ -68,16 +68,16 @@ pub fn err(message: &str, settings: &Settings) {
 ///
 /// # Example
 /// ```
-/// let settings = Settings {
+/// let c_settings = CSettings {
 ///     ...
 ///     is_verbose: true,
 ///     is_no_color: false,
 /// };
-/// zlog::warn("This is an error message", &settings);
+/// zlog::warn("This is an error message", &c_settings);
 /// ```
-pub fn warn(message: &str, settings: &Settings) {
-    if settings.is_verbose {
-        if settings.is_no_color {
+pub fn warn(message: &str, c_settings: &CSettings) {
+    if c_settings.is_verbose {
+        if c_settings.is_no_color {
             println!("[WARNING] {}", message);
         } else {
             println!("{} {}", "[WARNING]".yellow(), message);
@@ -96,16 +96,16 @@ pub fn warn(message: &str, settings: &Settings) {
 ///
 /// # Example
 /// ```
-/// let settings = Settings {
+/// let c_settings = CSettings {
 ///     ...
 ///     is_verbose: true,
 ///     is_no_color: false,
 /// };
-/// zlog::log("This is a log message", &settings);
+/// zlog::log("This is a log message", &c_settings);
 /// ```
-pub fn log(message: &str, settings: &Settings) {
-    if settings.is_verbose {
-        if settings.is_no_color {
+pub fn log(message: &str, c_settings: &CSettings) {
+    if c_settings.is_verbose {
+        if c_settings.is_no_color {
             println!("[LOG] {}", message);
         } else {
             println!("{} {}", "[LOG]".green(), message);

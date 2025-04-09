@@ -4,15 +4,17 @@ use std::fs::File;
 use std::io::prelude::*;
 include!(concat!(env!("OUT_DIR"), "/build_info.rs"));
 
+mod parser;
 mod tokenizer;
 mod zlog;
 
-const VERSION: &str = "0.0.1-pre";
+const VERSION: &str = "0.0.1-dev";
 const BUILD_ID: &str = BUILD_TIMESTAMP;
 const NAME: &str = "zinc";
 
+// Compiler settings
 #[derive(Clone, Default)]
-struct Settings {
+struct CSettings {
     is_verbose: bool,
     is_print_tokens: bool,
     is_no_color: bool,
@@ -21,7 +23,7 @@ struct Settings {
 fn main() -> std::io::Result<()> {
     let args: Vec<String> = env::args().collect();
     let mut src: String = String::new();
-    let mut settings: Settings = Settings::default();
+    let mut c_settings: CSettings = CSettings::default();
 
     if args.len() >= 2 {
         let mut input_file_str: String = String::new();
@@ -36,13 +38,13 @@ fn main() -> std::io::Result<()> {
                 println!("zinc (ZINC) {VERSION} {BUILD_ID}");
                 return Ok(());
             } else if arg == "--verbose" || arg == "--vb" {
-                settings.is_verbose = true;
+                c_settings.is_verbose = true;
             } else if arg == "--print-tokens" || arg == "--pt" {
-                settings.is_print_tokens = true;
+                c_settings.is_print_tokens = true;
             } else if arg == "--no-color" || arg == "--nc" {
-                settings.is_no_color = true;
+                c_settings.is_no_color = true;
             } else if arg.starts_with('-') {
-                zlog::warn(&format!("Unknown argument `{}`", arg), &settings);
+                zlog::warn(&format!("Unknown argument `{}`", arg), &c_settings);
             } else {
                 if arg != NAME {
                     input_file_str = arg.to_string();
@@ -50,13 +52,13 @@ fn main() -> std::io::Result<()> {
             }
         }
 
-        if settings.is_verbose {
-            zlog::verbose("Running in verbose mode.", &settings);
-            if settings.is_no_color {
-                zlog::verbose("Running without color output.", &settings);
+        if c_settings.is_verbose {
+            zlog::verbose("Running in verbose mode.", &c_settings);
+            if c_settings.is_no_color {
+                zlog::verbose("Running without color output.", &c_settings);
             }
-            if settings.is_print_tokens {
-                zlog::verbose("Printing generated tokens set to `true`", &settings);
+            if c_settings.is_print_tokens {
+                zlog::verbose("Printing generated tokens set to `true`", &c_settings);
             }
         }
 
@@ -75,7 +77,7 @@ fn main() -> std::io::Result<()> {
 
             zlog::verbose(
                 &format!("Absolute source file path: {}", src_path.to_string()),
-                &settings,
+                &c_settings,
             );
 
             match read_file_to_string(&src_path, &mut src) {
@@ -83,29 +85,29 @@ fn main() -> std::io::Result<()> {
                 Err(e) => {
                     zlog::err(
                         &format!("Failed to read file contents to string due to error {}", e),
-                        &settings,
+                        &c_settings,
                     );
                     return Err(e);
                 }
             }
 
-            let mut tokenizer: tokenizer::Tokenizer = tokenizer::Tokenizer::new(src, &settings);
+            let mut tokenizer: tokenizer::Tokenizer = tokenizer::Tokenizer::new(src, &c_settings);
             match tokenizer.tokenize() {
                 Ok(tokens) => {
-                    if settings.is_print_tokens {
+                    if c_settings.is_print_tokens {
                         // Print the tokens out
                         let all_token_string: String = tokens
                             .iter()
                             .map(|token| format!("{:#?}", token))
                             .collect::<Vec<String>>()
                             .join("\n");
-                        zlog::log(&all_token_string, &settings);
+                        zlog::log(&all_token_string, &c_settings);
                     }
                 }
                 Err(e) => {
                     zlog::err(
                         &format!("Failed to tokenize source file contents due to error {}", e),
-                        &settings,
+                        &c_settings,
                     );
                     return Err(std::io::Error::new(std::io::ErrorKind::Other, e));
                 }
@@ -116,7 +118,7 @@ fn main() -> std::io::Result<()> {
                     "{}: fatal error: No input file(s). Type --help for usage.",
                     NAME.green()
                 ),
-                &settings,
+                &c_settings,
             );
         }
     } else {
@@ -125,7 +127,7 @@ fn main() -> std::io::Result<()> {
                 "{}: fatal error: Incorrect Usage. Type --help for usage.",
                 NAME.green()
             ),
-            &settings,
+            &c_settings,
         );
     }
 

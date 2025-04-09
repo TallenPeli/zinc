@@ -1,9 +1,9 @@
 // Tokenizer
-use crate::Settings;
+use crate::CSettings;
 use crate::zlog::{self};
 use std::{result::Result, usize};
 
-#[derive(Debug, Clone)]
+#[derive(PartialEq, Debug, Clone)]
 #[allow(dead_code)]
 pub enum TokenType {
     TokTypeChar,      // 'char' ✅
@@ -124,7 +124,7 @@ pub struct Tokenizer<'a> {
     src: String,
     index: usize,
     line: u32,
-    settings: &'a Settings,
+    c_settings: &'a CSettings,
 }
 
 impl<'a> Tokenizer<'a> {
@@ -146,12 +146,12 @@ impl<'a> Tokenizer<'a> {
     /// let tokens = tokenizer.tokenize().unwrap();
     /// ```
     ///
-    pub fn new(src: String, settings: &'a Settings) -> Self {
+    pub fn new(src: String, c_settings: &'a CSettings) -> Self {
         Tokenizer {
             src,
             index: 0,
             line: 1,
-            settings,
+            c_settings,
         }
     }
 
@@ -168,7 +168,7 @@ impl<'a> Tokenizer<'a> {
     ///
     /// ```
     /// // Create a new tokenizer first, then tokenize
-    /// let mut tokenizer: tokenizer::Tokenizer = tokenizer::Tokenizer::new(src, &settings);
+    /// let mut tokenizer: tokenizer::Tokenizer = tokenizer::Tokenizer::new(src, &c_settings);
     /// let tokens: Vec<Token> = tokenizer.tokenize()?; // Or you could do a match statement
     /// ```
     ///
@@ -527,7 +527,7 @@ impl<'a> Tokenizer<'a> {
                 self.line,
                 tokens.len()
             ),
-            self.settings,
+            self.c_settings,
         );
         Ok(tokens)
     }
