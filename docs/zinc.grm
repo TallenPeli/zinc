@@ -1,0 +1,119 @@
+# Syntax:
+
+```
+`::=` - Assign
+`""` - String (terminal)
+`[]` - Optional items
+`<>` - Contains a value or items (non-terminal)
+`;` - Line termination
+`|` - or
+`...` - Can optionally repeat
+```
+
+# Grammar
+
+<program> ::= <function_expression> | <declaration> ;
+
+<function_expression> ::= "fun" <identifier> "(" [ <arguement_declaration> [ "," <arguement_declaration> ] ... ] ")" "->" <type> "{" <statement> "}"
+
+<declaration> ::= <identifier> ":" <type> "=" <expression> ";" ;
+
+<assignment> ::= <identifier> "=" <literal> ;
+
+<arguement_declaration> ::= <identifier> ":" <type> [ "=" <expression> ] ;
+
+<argument> ::= <expression> ;
+
+<expression> ::= [ <unary_operator> ] <term> [ <unary_operator> ] | [ <operator> <term> ] ... ; 
+
+<term> ::= <factor> [ ( "/" | "*" | "%" ) <factor> ] ... ;
+
+<factor> ::= <primary> | <unary_operator> <factor> ;
+
+<primary> ::= <identifier> 
+            | "(" <expression> ")"
+            | <function_call> // [TODO]
+            | <member_access> // [TODO]
+            | <index_access> // [TODO]
+            ;
+
+<expression_statement> ::= <literal> "(" [ <argument>... ] ")" ;
+
+<literal> ::= <int_literal> | <float_literal> | <bool_literal> | <string_literal> | <char_literal> ;
+
+<bool_literal> ::= "true" | "false" | "0" | "1" ;
+
+<operator> ::= <binary_operator> | <ternary_operator>
+
+<unary_operator> ::= "++" | "--" | "!" | "~";
+
+<binary_operator> ::= <arithmetic_operator> | <relational_operator> | <logical_operator> | <bitwise_operator> | <assignment_operator> ;
+
+<ternary_operator> ::= "?:" ;
+
+<arithmetic_operator> ::= "+" | "-" | "*" | "/" | "%" ;
+
+<relational_operator> ::= "<" | "<=" | ">" | ">=" | "==" | "!=" | "|=" ;
+                        
+<logical_operator> ::= "&&" | "||" ;
+
+<bitwise_operator> ::= "&" | "|" | "<<" | ">>" | "~" | "^";
+
+<assignment_operator> ::= "=" | "+=" | "-=" | "*=" | "/=" | "%=" | "<<=" | ">>=" ;
+
+<type> ::= "i64"
+         | "i32"
+         | "i16"
+         | "i8"
+         | "u64"
+         | "u32"
+         | "u16"
+         | "u8"
+         | "char"
+         | "string"
+         | "bool"
+         | "f64"
+         | "f32"
+         | "f16"
+         | "Err" 
+         ;
+
+<if_statement> ::= "if" [ "(" ] <condition> [ ")" ] "{" <statement> "}" [ "else" "{" <statement> "}" ] ;
+
+<while_statement> ::= "while" [ "(" ] <condition> [ ")" ] "{" <statement> "}" ;
+
+<do_while_statement> ::= "do" "{" <statement> "}" "while" [ "(" ] <condition> [ ")" ] ;
+
+<enum> ::= "enum" <identifier> "{" <identifier> [ <identifier>... ] "}" ;
+
+<struct> ::= "struct" <identifier> "{" <declaration> [ <declaration>... ] "}" ;
+
+<for_loop> ::= "for" [ "(" ] <identifier> "in" <range_identifier> [ ")" ] "{" <statement> "}" ;
+
+<try_catch> ::= "try" "{" <statement> "throw" [ "(" ] <declaration> [ ")" ] "}" "catch" [ "(" ] <identifier> [ ")" ] ;
+
+<condition> ::= <boolean_expression>
+
+<boolean_expression> ::= <comparison>
+                       | <boolean_expression> "&&" <comparison>
+                       | <boolean_expression> "||" <comparison>
+                       | "!" <boolean_expression>
+                       | "(" <boolean_expression> ")"
+
+<comparison> ::= <expression> "==" <expression>
+               | <expression> "|=" <expression>
+               | <expression> ">=" <expression>
+               | <expression> "<=" <expression>
+               | <expression> ">" <expression>
+               | <expression> "<" <expression>
+
+<return_statement> ::= "return" <expression> ;
+
+<statement> ::= <declaration> ";"
+              | <assignment> ";"
+              | <expression_statement> ";"
+              | <if_statement> ";"
+              | <while_statement> ";"
+              | <do_while_statement> ";"
+              | <for_loop> ";"
+              | <return_statement> ";"

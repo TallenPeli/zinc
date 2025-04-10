@@ -356,6 +356,18 @@ impl<'a> Tokenizer<'a> {
                     value: Some(tok_buf),
                     line: self.line,
                 });
+            } else if ch == '`' {
+                while let Some(next_char) = self.peek(1) {
+                    if next_char != '`' {
+                        if next_char == '\n' {
+                            self.line += 1;
+                        }
+                        self.consume(1);
+                    } else {
+                        self.consume(2);
+                        break;
+                    }
+                }
             } else {
                 self.consume(1);
                 let tok_type: TokenType = match ch {

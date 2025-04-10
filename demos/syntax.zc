@@ -6,6 +6,8 @@ Line
 comments
 */
 
+`You can use these (backticks) to make comments too!`
+
 /// Documentation comments
 /// # Supports markdown
 /// It's just like rust!!

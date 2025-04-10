@@ -1,5 +1,6 @@
 use crate::tokenizer::{Token, TokenType};
 
+#[derive(Debug)]
 pub enum Operator {
     Plus,
     Minus,
@@ -8,6 +9,7 @@ pub enum Operator {
     Modulus,
 }
 
+#[derive(Debug)]
 pub enum Node {
     List(Vec<Node>),
     Int(i32),
@@ -32,10 +34,6 @@ impl Parser {
     fn parse() {
         let mut program: Vec<Node> = Vec::new();
         program.push(Node::List(Vec::new()));
-    }
-
-    fn match_token(&self, expected: TokenType) -> bool {
-        matches!(self.peek(0), Some(token) if token.tok_type == expected)
     }
 
     fn peek(&self, forward: usize) -> Option<&Token> {

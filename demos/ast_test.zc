@@ -1,4 +1,4 @@
-// Basic Zinc program to return 42
+// Simple Zinc test
 fun main() -> i32 {
     return 41+1;
 }
